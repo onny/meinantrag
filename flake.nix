@@ -5,18 +5,28 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = import nixpkgs { inherit system; };
       in
       rec {
         devShell = pkgs.mkShell {
-          packages = with pkgs; with python3Packages; [
-            python
-            requests
-            beautifulsoup4
-          ];
+          packages =
+            with pkgs;
+            with python3Packages;
+            [
+              python
+              requests
+              beautifulsoup4
+              pyyaml
+            ];
         };
 
         packages = flake-utils.lib.flattenTree {
@@ -31,6 +41,7 @@
               python
               requests
               beautifulsoup4
+              pyyaml
             ];
 
             installPhase = ''
@@ -43,6 +54,6 @@
 
         # eintopf-radar-sync service module
         nixosModule = (import ./module.nix);
-      });
+      }
+    );
 }
-

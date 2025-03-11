@@ -3,23 +3,29 @@
 import requests
 import json
 from bs4 import BeautifulSoup
+import yaml
+import string
 
-print("hello world")
-sys.exit()
+def load_config(file_path):
+    with open(file_path, "r") as file:
+        config = yaml.safe_load(file)
 
-# Eintopf config
-# Get Authorization token through login request
-# http://localhost:3333/api/v1/swagger#/auth/login
-eintopf_url = "https://karlsunruh.project-insanity.org"
-eintopf_api_endpoint = eintopf_url + "/api/v1/events/"
-eintopf_headers = {
-    "Authorization": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJlZTA3MDgzLTVjYzktNGM5MS04ZThkLTFkNjhkNzZhZDc5YiIsIm5iZiI6MTQ0NDQ3ODQwMH0.hDQiwXBpIfEiOLP1QAXb9q8eQeaslIHlLN3CBdkHzQKdH0eZZCViEooIyKdZmoncQ0NQAExaitUbFnn6HcAITy8buBhIep6g0fRrfnTgqYOwelhJCXKySUwLe72sEthElaOfISKhvS9Tss4zd3NkNIfFDBVXMnmtOUXmrmlt7Z-5y9p4IiftqBKRA-Md4Uc6iiylSPi7ZZ0r23p2NrYJMyTiWS7-PfhNUt8GJ7HXjmX08VDTQs2lBnQH4c5n1lLCRkUUGpSgPg_2yBnSWN3z_3gQ_mOBNbvYTI2rc4i5fh6eQMIp4B5iL4Kt4Ebe-ikwQFXQ2INWCmemtQtB2pyVMg",
-    "Content-Type": "application/json"
-}
+    variables = config.get("variables", {})
+    
+    # String template replacement
+    def resolve(value):
+        if isinstance(value, str):
+            return string.Template(value).substitute(variables)
+        if isinstance(value, dict):
+            return {k: resolve(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [resolve(v) for v in value]
+        return value
 
-# Radar config
-radar_group_id = "436012"
-radar_api_endpoint = "https://radar.squat.net/api/1.2/search/events.json?fields=title,offline,date_time,body&facets[group][]=" + radar_group_id
+    return resolve(config)
+
+# Load configuration
+config = load_config("config.yaml")
 
 def strip_html_tags(text):
     soup = BeautifulSoup(text, "html.parser")
@@ -49,14 +55,14 @@ def eintopf_post_event(title, location, description, time_start, time_end):
         "tags": ["karlsruhe"],
         "topic": "Veranstaltung"
     }
-    response = requests.post(eintopf_api_endpoint, json=payload, headers=eintopf_headers)
+    response = requests.post(config["eintopf"]["api_endpoint"], json=payload, headers=config["eintopf"]["headers"])
 
     if response.status_code == 200:
         return True
     else:
         return False
 
-response = requests.get(radar_api_endpoint)
+response = requests.get(config["radar"]["api_endpoint"])
 
 if response.status_code == 200:
     data = response.json()
