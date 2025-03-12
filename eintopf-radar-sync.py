@@ -3,6 +3,7 @@
 import requests
 import json
 from bs4 import BeautifulSoup
+import os
 
 # Read environment variables (fail if missing)
 EINTOPF_URL = os.environ["EINTOPF_URL"]

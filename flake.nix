@@ -27,7 +27,6 @@
           python
           requests
           beautifulsoup4
-          pyyaml
         ];
 
         installPhase = ''
@@ -51,7 +50,6 @@
         python
         requests
         beautifulsoup4
-        pyyaml
       ];
     });
 
