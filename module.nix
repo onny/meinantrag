@@ -1,7 +1,4 @@
 {config, lib, pkgs, ...}:
-
-with lib;
-
 let
 
   cfg = config.services.eintopf-radar-sync;
@@ -12,28 +9,28 @@ in
     options = {
       services.eintopf-radar-sync = {
 
-        enable = mkOption {
-          type = types.bool;
+        enable = lib.mkOption {
+          type = lib.types.bool;
           default = false;
           description = ''
             Enable eintopf-radar-sync daemon.
           '';
         };
 
-        settings = mkOption {
-          type = types.submodule {
-            freeformType = jsonFormat.type;
+        settings = lib.mkOption {
+          type = lib.types.submodule {
+            freeformType = with lib.types; attrsOf types.str;
             options = {
-              EINTOPF_URL = mkOption {
+              EINTOPF_URL = lib.mkOption {
                 default = "";
-                type = types.str;
+                type = lib.types.str;
                 description = ''
 		  Base URL of the target Eintopf host.
                 '';
               };
-              RADAR_GROUP_ID = mkOption {
+              RADAR_GROUP_ID = lib.mkOption {
                 default = "";
-                type = types.str;
+                type = lib.types.str;
                 description = ''
 		  Radar group ID which events to sync.
                 '';
@@ -44,7 +41,7 @@ in
           description = ''
             Extra options which should be used by the Radar sync script.
           '';
-          example = literalExpression ''
+          example = lib.literalExpression ''
             {
               EINTOPF_URL = "eintopf.info";
     	      RADAR_GROUP_ID = "436012";
@@ -53,7 +50,7 @@ in
         };
 
         secrets = lib.mkOption {
-          type = with types; listOf path;
+          type = with lib.types; listOf path;
           description = ''
             A list of files containing the various secrets. Should be in the
             format expected by systemd's `EnvironmentFile` directory.
@@ -75,7 +72,7 @@ in
       };
     };
 
-    config = mkIf cfg.enable {
+    config = lib.mkIf cfg.enable {
 
       systemd.services."eintopf-radar-sync" = {
         description = "eintopf-radar-sync script";
