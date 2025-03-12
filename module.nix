@@ -20,6 +20,47 @@ in
           '';
         };
 
+        settings = mkOption {
+          type = types.submodule {
+            freeformType = jsonFormat.type;
+            options = {
+              eintopfUrl = mkOption {
+                default = "";
+                type = types.str;
+                description = ''
+		  Base URL of the target Eintopf host.
+                '';
+              };
+              radarGroupId = mkOption {
+                default = "";
+                type = types.str;
+                description = ''
+		  Radar group ID which events to sync.
+                '';
+              };
+	    };
+          };
+          default = {};
+          description = ''
+            Extra options which should be used by the Radar sync script.
+          '';
+          example = literalExpression ''
+            {
+              eintopfUrl = "eintopf.info";
+    	      radarGroupId = "436012";
+            }
+          '';
+        };
+
+        secretFile = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = ''
+            Secret options which will be appended to the Radar sync config, for example
+            `{"redis":{"password":"secret"}}`.
+          '';
+        };
+
       };
     };
 
@@ -31,11 +72,13 @@ in
         wantedBy = [ "multi-user.target" ];
         environment.PYTHONUNBUFFERED = "1";
         serviceConfig = {
-          ExecStart = "${pkgs.iwd-autocaptiveauth}/bin/iwd-autocaptiveauth --profileDir ${pkgs.iwd-autocaptiveauth}/profiles";
+	  Type = "simple";
+          ExecStart = lib.getExe pkgs.eintopf-radar-sync;
           Restart = "on-failure";
-          User = "iwd-autocaptiveauth";
+	  DynamicUser = true;
           RestartSec = 30;
-          WorkingDirectory = ''${pkgs.iwd-autocaptiveauth}/'';
+	  # TODO hardening
+	  # TODO settings
         };
         restartIfChanged = true;
       };
