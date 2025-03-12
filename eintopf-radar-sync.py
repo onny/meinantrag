@@ -3,29 +3,11 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-import yaml
-import string
 
-def load_config(file_path):
-    with open(file_path, "r") as file:
-        config = yaml.safe_load(file)
-
-    variables = config.get("variables", {})
-    
-    # String template replacement
-    def resolve(value):
-        if isinstance(value, str):
-            return string.Template(value).substitute(variables)
-        if isinstance(value, dict):
-            return {k: resolve(v) for k, v in value.items()}
-        if isinstance(value, list):
-            return [resolve(v) for v in value]
-        return value
-
-    return resolve(config)
-
-# Load configuration
-config = load_config("config.yaml")
+# Read environment variables (fail if missing)
+EINTOPF_URL = os.environ["EINTOPF_URL"]
+RADAR_GROUP_ID = os.environ["RADAR_GROUP_ID"]
+EINTOPF_AUTHORIZATION_TOKEN = os.environ["EINTOPF_AUTHORIZATION_TOKEN"]
 
 def strip_html_tags(text):
     soup = BeautifulSoup(text, "html.parser")
@@ -55,7 +37,10 @@ def eintopf_post_event(title, location, description, time_start, time_end):
         "tags": ["karlsruhe"],
         "topic": "Veranstaltung"
     }
-    response = requests.post(config["eintopf"]["api_endpoint"], json=payload, headers=config["eintopf"]["headers"])
+    response = requests.post(EINTOPF_URL, json=payload, headers={
+      "Authorization": EINTOPF_AUTHORIZATION_TOKEN,
+      "Content-Type": "application/json"
+   })
 
     if response.status_code == 200:
         return True
@@ -64,7 +49,7 @@ def eintopf_post_event(title, location, description, time_start, time_end):
 
 print("Beginning scraping Radar api ...")
 
-response = requests.get(config["radar"]["api_endpoint"])
+response = requests.get("https://radar.squat.net/api/1.2/search/events.json?fields=title,offline,date_time,body&facets[group][]=" + RADAR_GROUP_ID)
 
 if response.status_code == 200:
     data = response.json()
