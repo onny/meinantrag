@@ -54,6 +54,10 @@
 
         # eintopf-radar-sync service module
         nixosModule = (import ./module.nix);
+
+        overlay = self: super: {
+          eintopf-radar-sync = packages.eintopf-radar-sync;
+        };
       }
     );
 }
