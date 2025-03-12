@@ -1,9 +1,6 @@
 # eintopf-radar-sync
-Small script to autologin to public wifis or test hotspots!
-
-> Do not use this in production or against real public access points, since
-> automatically logging in will violate most of the terms of use. The useage of
-> this software is for development or research purpose only.
+Small script to sync events of an radar.quad.net group to a specific Eintopf
+instance.
 
 ## Installation
 
@@ -14,7 +11,7 @@ Add the module to your `flake.nix`:
 ```nix
 {
   inputs = {
-    iwd-autocaptiveauth.url = "git+https://git.project-insanity.org/onny/py-iwd-autocaptiveauth.git";
+    eintopf-radar-sync.url = "git+https://git.project-insanity.org/onny/eintopf-radar-sync.git";
     [...]
   };
 
@@ -24,12 +21,12 @@ Add the module to your `flake.nix`:
       system = "x86_64-linux";
       specialArgs.inputs = inputs;
       modules = [
-        inputs.iwd-autocaptiveauth.nixosModule
+        inputs.eintopf-radar-sync.nixosModule
 
         ({ pkgs, ... }:{
 
           nixpkgs.overlays = [
-            inputs.iwd-autocaptiveauth.overlay
+            inputs.eintopf-radar-sync.overlay
           ];
 
         })
@@ -45,24 +42,33 @@ Add the module to your `flake.nix`:
 Add this to your `configuration.nix` file
 
 ```nix
-services.iwd-autocaptiveauth.enable = true;
+environment.etc."eintopf-radar-sync-secrets".text = ''
+EINTOPF_AUTHORIZATION_TOKEN=foobar23
+'';
+
+services.eintopf-radar-sync = {
+  enable = true;
+  settings = {
+    EINTOPF_URL = "https://karlsunruh.eintopf.info";
+    RADAR_GROUP_ID = "436012";
+  };
+  secrets = [ /etc/eintopf-radar-sync-secrets ];
+};
 ```
+
+Replace setting variables according to your setup.
+
+Get the authorization token through login request in the Eintopf
+Swagger api interface, for example
+https://karlsunruh.project-insanity.org/api/v1/swagger#/auth/login
 
 ### From source
 
-This script requires the program
-[hyperpotamus](https://github.com/pmarkert/hyperpotamus) as a dependency. As
-network manager, only
-[iwd](https://git.kernel.org/pub/scm/network/wireless/iwd.git/) is supported.
-Further you might need to install the Python modules ``python-dbus`` and
-``gobject``.
-
-Just run ``python iwd-autocaptiveauth.py``.
-
-## Configuration
-The ``profiles`` directory contains small scripts which will perform the
-http authentication process using ``hyperpotamus``. The filename should match
-the ESSID of the wifi network.
-
-Feel free to submit your profiles to this Gitlab repository!
-
+```
+cd eintopf-radar-sync
+nix develop
+export EINTOPF_URL = "https://karlsunruh.eintopf.info"
+export EINTOPF_AUTHORIZATION_TOKEN = "secret key"
+export RADAR_GROUP_ID = "436012"
+nix run
+```
