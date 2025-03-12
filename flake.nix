@@ -33,6 +33,8 @@
         installPhase = ''
           install -Dm755 ${./eintopf-radar-sync.py} $out/bin/eintopf-radar-sync
         '';
+
+	meta.mainProgram = "eintopf-radar-sync";
       };
     };
 
