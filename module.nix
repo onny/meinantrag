@@ -87,7 +87,6 @@ in
         serviceConfig = {
 	  Type = "simple";
           ExecStart = lib.getExe pkgs.eintopf-radar-sync;
-	  DynamicUser = true;
 	  EnvironmentFile = [ cfg.secrets ];
 
           # hardening
