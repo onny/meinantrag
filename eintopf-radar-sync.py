@@ -62,6 +62,8 @@ def eintopf_post_event(title, location, description, time_start, time_end):
     else:
         return False
 
+print("Beginning scraping Radar api ...")
+
 response = requests.get(config["radar"]["api_endpoint"])
 
 if response.status_code == 200:
