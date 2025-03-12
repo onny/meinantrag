@@ -81,8 +81,9 @@ in
         description = "eintopf-radar-sync script";
         after = [ "network.target" ];
         wants = [ "network-online.target" ];
-        environment.PYTHONUNBUFFERED = "1";
-	environment = cfg.settings;
+        environment = {
+	  PYTHONUNBUFFERED = "1";
+	} // cfg.settings;
         serviceConfig = {
 	  Type = "simple";
           ExecStart = lib.getExe pkgs.eintopf-radar-sync;
