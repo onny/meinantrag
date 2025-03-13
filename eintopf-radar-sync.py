@@ -4,6 +4,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import os
+import sys
 
 # Read environment variables (fail if missing)
 EINTOPF_URL = os.environ["EINTOPF_URL"]
@@ -38,7 +39,7 @@ def eintopf_post_event(title, location, description, time_start, time_end):
         "tags": ["karlsruhe"],
         "topic": "Veranstaltung"
     }
-    response = requests.post(EINTOPF_URL, json=payload, headers={
+    response = requests.post(EINTOPF_URL + "/api/v1/events/", json=payload, headers={
       "Authorization": EINTOPF_AUTHORIZATION_TOKEN,
       "Content-Type": "application/json"
    })
