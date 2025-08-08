@@ -1,7 +1,7 @@
 {
-  description = "eintopf-radar-sync package and service";
+  description = "mail-quota-warning package and service";
 
-  inputs.nixpkgs.url = "nixpkgs/nixos-24.11";
+  inputs.nixpkgs.url = "nixpkgs/nixos-25.05";
 
   outputs = { self, nixpkgs }:
   let
@@ -16,8 +16,8 @@
     );
   in {
     overlay = final: prev: {
-      eintopf-radar-sync = with final; python3Packages.buildPythonApplication {
-        pname = "eintopf-radar-sync";
+      mail-quota-warning = with final; python3Packages.buildPythonApplication {
+        pname = "mail-quota-warning";
         version = "0.0.1";
         format = "other";
 
@@ -25,23 +25,23 @@
 
         dependencies = with python3Packages; [
           python
-          requests
-          beautifulsoup4
+	  pyyaml
+	  imaplib2
         ];
 
         installPhase = ''
-          install -Dm755 ${./eintopf-radar-sync.py} $out/bin/eintopf-radar-sync
+          install -Dm755 ${./mail-quota-warning.py} $out/bin/mail-quota-warning
         '';
 
-	meta.mainProgram = "eintopf-radar-sync";
+	meta.mainProgram = "mail-quota-warning";
       };
     };
 
     packages = forAllSystems (system: {
-      inherit (nixpkgsFor.${system}) eintopf-radar-sync;
+      inherit (nixpkgsFor.${system}) mail-quota-warning;
     });
 
-    defaultPackage = forAllSystems (system: self.packages.${system}.eintopf-radar-sync);
+    defaultPackage = forAllSystems (system: self.packages.${system}.mail-quota-warning);
 
     devShells = forAllSystems (system: let
       pkgs = import nixpkgs { inherit system; overlays = [ self.overlay ]; };
@@ -53,7 +53,7 @@
       ];
     });
 
-    # eintopf-radar-sync service module
+    # mail-quota-warning service module
     nixosModule = (import ./module.nix);
   };
 }

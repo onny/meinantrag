@@ -1,19 +1,19 @@
 {config, lib, pkgs, ...}:
 let
 
-  cfg = config.services.eintopf-radar-sync;
+  cfg = config.services.mail-quota-warning;
 
 in 
   {
 
     options = {
-      services.eintopf-radar-sync = {
+      services.mail-quota-warning = {
 
         enable = lib.mkOption {
           type = lib.types.bool;
           default = false;
           description = ''
-            Enable eintopf-radar-sync daemon.
+            Enable mail-quota-warning daemon.
           '';
         };
 
@@ -74,8 +74,8 @@ in
 
     config = lib.mkIf cfg.enable {
 
-      systemd.services."eintopf-radar-sync" = {
-        description = "eintopf-radar-sync script";
+      systemd.services."mail-quota-warning" = {
+        description = "mail-quota-warning script";
         after = [ "network.target" ];
         wants = [ "network-online.target" ];
         environment = {
@@ -83,7 +83,7 @@ in
 	} // cfg.settings;
         serviceConfig = {
 	  Type = "simple";
-          ExecStart = lib.getExe pkgs.eintopf-radar-sync;
+          ExecStart = lib.getExe pkgs.mail-quota-warning;
 	  EnvironmentFile = [ cfg.secrets ];
 
           # hardening
@@ -118,7 +118,7 @@ in
         };
       };
 
-      systemd.timers.eintopf-radar-sync = {
+      systemd.timers.mail-quota-warning = {
         timerConfig = {
           OnCalendar = [
             ""
