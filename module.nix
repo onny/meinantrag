@@ -84,7 +84,6 @@ in
         serviceConfig = {
 	  Type = "simple";
           ExecStart = lib.getExe pkgs.mail-quota-warning;
-	  EnvironmentFile = [ cfg.secrets ];
 
           # hardening
           AmbientCapabilities = "";
@@ -115,7 +114,9 @@ in
           SystemCallArchitectures = "native";
           SystemCallFilter = [ "@system-service" "~@privileged" ];
           UMask = "0077";
-        };
+        } // lib.optionalAttrs (cfg.secretFile != [ ]) {
+	  EnvironmentFile = cfg.secretFile;
+	};
       };
 
       systemd.timers.mail-quota-warning = {
