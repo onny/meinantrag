@@ -96,6 +96,8 @@ in
       serviceConfig = {
         Type = "simple";
         ExecStart = "${lib.getExe pkgs.mail-quota-warning}${lib.optionalString (cfg.secretFile != null) " --config ${cfg.secretFile}"}";
+        WorkingDirectory = "%S/mail-quota-warning";
+        StateDirectory = "mail-quota-warning";
 
         # hardening
         AmbientCapabilities = "";

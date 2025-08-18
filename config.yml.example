@@ -1,6 +1,5 @@
 check_interval_days: 7   # Minimum days between warnings for same account
 quota_warning_threshold_percent: 80
-working_dir: /var/lib/mail-quota-warning
 
 accounts:
   - name: Sales

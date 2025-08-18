@@ -43,7 +43,7 @@ Add the module to your `flake.nix`:
 Add this to your `configuration.nix` file
 
 ```nix
-environment.etc."eintopf-radar-sync-secrets.yml".text = ''
+environment.etc."mail-quota-warning-secrets.yml".text = ''
 accounts:
   - name: Sales
     imap_server: mail.example.com
