@@ -181,7 +181,7 @@ def should_send_warning(state, account_name, interval_days):
     last_sent = datetime.fromisoformat(last_sent_str)
     return datetime.now() - last_sent >= timedelta(days=interval_days)
 
-def send_warning(config, triggered_accounts, all_quotas):
+def send_warning(config, triggered_accounts, all_quotas, threshold):
     mail_cfg = config["mail"]
     
     # Create subject based on number of accounts
@@ -199,7 +199,7 @@ def send_warning(config, triggered_accounts, all_quotas):
         body_lines.append(f"The mailbox for account '{account_name}' has reached {quota_info['percent_used']:.1f}% of its quota.")
         body_lines.append(f"Usage: {format_bytes(quota_info['used_kb'])} of {format_bytes(quota_info['limit_kb'])}")
     else:
-        body_lines.append("The following mailboxes have exceeded the quota threshold:")
+        body_lines.append(f"The following mailboxes have exceeded the quota threshold ({threshold}%):")
         body_lines.append("")
         for account_name, quota_info in triggered_accounts.items():
             body_lines.append(f"• {account_name}: {quota_info['percent_used']:.1f}% ({format_bytes(quota_info['used_kb'])} of {format_bytes(quota_info['limit_kb'])})")
@@ -287,7 +287,7 @@ def main():
     
     # Send consolidated warning email if any accounts triggered
     if triggered_accounts:
-        send_warning(config, triggered_accounts, all_quotas)
+        send_warning(config, triggered_accounts, all_quotas, threshold)
     
     save_state(state)
 
