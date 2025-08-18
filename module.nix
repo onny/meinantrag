@@ -19,7 +19,7 @@ in
 
         settings = lib.mkOption {
           type = lib.types.submodule {
-            freeformType = with lib.types; attrsOf types.str types.int;
+            freeformType = with lib.types; attrsOf anything;
             options = {
               CHECK_INTERVAL_DAYS = lib.mkOption {
                 default = 7;
