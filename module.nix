@@ -22,15 +22,15 @@ in
             freeformType = with lib.types; attrsOf types.str;
             options = {
               CHECK_INTERVAL_DAYS = lib.mkOption {
-                default = "";
-                type = lib.types.str;
+                default = 7;
+                type = lib.types.int;
                 description = ''
 		  Base URL of the target Eintopf host.
                 '';
               };
               QUOTA_WARNING_THRESHOLD_PERCENT = lib.mkOption {
-                default = "";
-                type = lib.types.str;
+                default = 80;
+                type = lib.types.int;
                 description = ''
 		  Radar group ID which events to sync.
                 '';
@@ -44,7 +44,7 @@ in
           example = lib.literalExpression ''
             {
               EINTOPF_URL = "eintopf.info";
-    	      RADAR_GROUP_ID = "436012";
+    	        QUOTA_WARNING_RADAR_GROUP_ID = "436012";
             }
           '';
         };
