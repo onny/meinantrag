@@ -263,8 +263,8 @@ def main():
     args = parse_args()
     config = load_config(args.config)
     state = load_state()
-    interval_days = config.get("check_interval_days", 7)
-    threshold = config.get("quota_warning_threshold_percent", 80)
+    interval_days = get_config_value(config, "CHECK_INTERVAL_DAYS", "check_interval_days", 7, int)
+    threshold = get_config_value(config, "QUOTA_WARNING_THRESHOLD_PERCENT", "quota_warning_threshold_percent", 80, int)
     
     # For thread-safe state updates
     state_lock = threading.Lock()

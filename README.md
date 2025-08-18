@@ -44,7 +44,28 @@ Add this to your `configuration.nix` file
 
 ```nix
 environment.etc."eintopf-radar-sync-secrets.yml".text = ''
-EINTOPF_AUTHORIZATION_TOKEN=foobar23
+accounts:
+  - name: Sales
+    imap_server: mail.example.com
+    imap_port: 993
+    username: sales@example.com
+    password: secret
+
+  - name: Support
+    imap_server: mail.example.com
+    imap_port: 993
+    username: support@example.com
+    password: secret
+
+mail:
+  smtp_server: mail.example.com
+  smtp_port: 587
+  smtp_username: monitoring@example.com
+  smtp_password: secret
+  from_address: monitoring@example.com
+  recipients:
+    - admin1@example.com
+    - admin2@example.com
 '';
 
 services.mail-quota-warning = {
