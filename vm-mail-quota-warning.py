@@ -32,7 +32,7 @@
       CHECK_INTERVAL_DAYS = 7;
       QUOTA_WARNING_THRESHOLD_PERCENT = 80;
     };
-    secretFile = /etc/mail-quota-warning-secrets.yml;
+    secretFile = "/etc/mail-quota-warning-secrets.yml";
   };
 
 }
