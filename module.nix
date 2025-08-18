@@ -19,32 +19,34 @@ in
 
         settings = lib.mkOption {
           type = lib.types.submodule {
-            freeformType = with lib.types; attrsOf types.str;
+            freeformType = with lib.types; attrsOf types.str types.int;
             options = {
               CHECK_INTERVAL_DAYS = lib.mkOption {
                 default = 7;
                 type = lib.types.int;
                 description = ''
-		  Base URL of the target Eintopf host.
+                  Interval of days in which a warning message will be
+                  delivered.
                 '';
               };
               QUOTA_WARNING_THRESHOLD_PERCENT = lib.mkOption {
                 default = 80;
                 type = lib.types.int;
                 description = ''
-		  Radar group ID which events to sync.
+		              Threshold of used mailbox space in percent after which
+                  a warning message will be delivered.
                 '';
               };
 	    };
           };
           default = {};
           description = ''
-            Extra options which should be used by the Radar sync script.
+            Extra options which should be used by the mailbox quota warning script.
           '';
           example = lib.literalExpression ''
             {
-              EINTOPF_URL = "eintopf.info";
-    	        QUOTA_WARNING_RADAR_GROUP_ID = "436012";
+              CHECK_INTERVAL_DAYS = 7;
+    	        QUOTA_WARNING_THRESHOLD_PERCENT = 80;
             }
           '';
         };

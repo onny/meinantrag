@@ -50,8 +50,8 @@ EINTOPF_AUTHORIZATION_TOKEN=foobar23
 services.mail-quota-warning = {
   enable = true;
   settings = {
-    EINTOPF_URL = "https://karlsunruh.eintopf.info";
-    RADAR_GROUP_ID = "436012";
+    CHECK_INTERVAL_DAYS = 7;
+    QUOTA_WARNING_THRESHOLD_PERCENT = 80;    
   };
   secrets = [ /etc/mail-quota-warning-secrets.yml ];
 };
@@ -64,8 +64,7 @@ Replace setting variables according to your setup.
 ```
 cd mail-quota-warning
 nix develop
-export EINTOPF_URL = "https://karlsunruh.eintopf.info"
-export EINTOPF_AUTHORIZATION_TOKEN = "secret key"
-export RADAR_GROUP_ID = "436012"
+export CHECK_INTERVAL_DAYS=7
+export QUOTA_WARNING_THRESHOLD_PERCENT=80
 nix run
 ```
