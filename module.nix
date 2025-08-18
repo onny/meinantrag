@@ -82,7 +82,7 @@ in
         wants = [ "network-online.target" ];
         environment = {
 	  PYTHONUNBUFFERED = "1";
-	} // cfg.settings;
+	} // lib.mapAttrs (_: v: toString v) cfg.settings;
         serviceConfig = {
 	  Type = "simple";
           ExecStart = lib.getExe pkgs.mail-quota-warning;
