@@ -57,12 +57,16 @@ in
       };
 
       secretFile = lib.mkOption {
-        type = with lib.types; listOf path;
+        type = lib.types.nullOr (lib.types.pathWith {
+          inStore = false;
+          absolute = true;
+        });
+        default = null;
+        example = "/run/keys/mail-quota-warning-secrets";
         description = ''
-          A list of files containing the various secrets. Should be in the
-          format expected by systemd's `EnvironmentFile` directory.
+          A YAML file containing secrets, see example config file
+          in the repository.
         '';
-        default = [ ];
       };
 
       interval = lib.mkOption {
@@ -91,7 +95,7 @@ in
       // lib.mapAttrs (_: v: toString v) cfg.settings;
       serviceConfig = {
         Type = "simple";
-        ExecStart = lib.getExe pkgs.mail-quota-warning;
+        ExecStart = "${lib.getExe pkgs.mail-quota-warning}${lib.optionalString (cfg.secretFile != null) " --config ${cfg.secretFile}"}";
 
         # hardening
         AmbientCapabilities = "";
@@ -128,9 +132,6 @@ in
           "~@privileged"
         ];
         UMask = "0077";
-      }
-      // lib.optionalAttrs (cfg.secretFile != [ ]) {
-        EnvironmentFile = cfg.secretFile;
       };
     };
 
