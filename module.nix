@@ -21,14 +21,14 @@ in
           type = lib.types.submodule {
             freeformType = with lib.types; attrsOf types.str;
             options = {
-              EINTOPF_URL = lib.mkOption {
+              CHECK_INTERVAL_DAYS = lib.mkOption {
                 default = "";
                 type = lib.types.str;
                 description = ''
 		  Base URL of the target Eintopf host.
                 '';
               };
-              RADAR_GROUP_ID = lib.mkOption {
+              QUOTA_WARNING_THRESHOLD_PERCENT = lib.mkOption {
                 default = "";
                 type = lib.types.str;
                 description = ''
@@ -49,7 +49,7 @@ in
           '';
         };
 
-        secrets = lib.mkOption {
+        secretFile = lib.mkOption {
           type = with lib.types; listOf path;
           description = ''
             A list of files containing the various secrets. Should be in the

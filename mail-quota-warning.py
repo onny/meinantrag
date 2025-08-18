@@ -5,30 +5,55 @@ import yaml
 import json
 import os
 import threading
+import argparse
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 
 CONFIG_FILE = "config.yml"
 STATE_FILE = "quota_state.json"
 
-# TODO:
-# - make working dir configurable for state file
-# - optional read config.yml from command line argument
-# - note in warning mail that it exceeded XX% quota threashold
-# - fix list summary mark all accounts which are critical
+# TODO
+# - load config from file
+# - override with env vars
 
-def load_config():
-    with open(CONFIG_FILE, "r") as f:
+def get_config_value(config, env_var, config_key, default_value, value_type=int):
+    """Get configuration value from environment variable or config file, with fallback to default"""
+    env_value = os.environ.get(env_var)
+    if env_value is not None:
+        try:
+            return value_type(env_value)
+        except ValueError:
+            log(f"Invalid value for {env_var}: {env_value}, using config/default")
+    
+    return config.get(config_key, default_value)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Email quota monitoring script")
+    parser.add_argument(
+        "--config", 
+        default="config.yml",
+        help="Path to config.yml file (default: config.yml in current directory)"
+    )
+    return parser.parse_args()
+
+def load_config(config_file):
+    if not os.path.exists(config_file):
+        log(f"Config file not found: {config_file}")
+        raise FileNotFoundError(f"Config file not found: {config_file}")
+    
+    with open(config_file, "r") as f:
         return yaml.safe_load(f)
 
 def load_state():
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r") as f:
+    state_file = "quota_state.json"
+    if os.path.exists(state_file):
+        with open(state_file, "r") as f:
             return json.load(f)
     return {}
 
 def save_state(state):
-    with open(STATE_FILE, "w") as f:
+    state_file = "quota_state.json"
+    with open(state_file, "w") as f:
         json.dump(state, f, indent=2)
 
 def log(msg):
@@ -235,7 +260,8 @@ def check_account_quota(account, config, state, threshold, interval_days):
     return None, quota_info
 
 def main():
-    config = load_config()
+    args = parse_args()
+    config = load_config(args.config)
     state = load_state()
     interval_days = config.get("check_interval_days", 7)
     threshold = config.get("quota_warning_threshold_percent", 80)

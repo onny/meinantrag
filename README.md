@@ -1,6 +1,7 @@
-# eintopf-radar-sync
-Small script to sync events of an radar.quad.net group to a specific Eintopf
-instance.
+# mail-quota-warning
+
+Small script to check a configured list of IMAP accounts for mailbox quota and send
+a warning mail in case a specific threashold is exceeded.
 
 ## Installation
 
@@ -11,7 +12,7 @@ Add the module to your `flake.nix`:
 ```nix
 {
   inputs = {
-    eintopf-radar-sync.url = "git+https://git.project-insanity.org/onny/eintopf-radar-sync.git";
+    mail-quota-warning.url = "git+https://git.project-insanity.org/onny/mail-quota-warning.git";
     [...]
   };
 
@@ -21,12 +22,12 @@ Add the module to your `flake.nix`:
       system = "x86_64-linux";
       specialArgs.inputs = inputs;
       modules = [
-        inputs.eintopf-radar-sync.nixosModule
+        inputs.mail-quota-warning.nixosModule
 
         ({ pkgs, ... }:{
 
           nixpkgs.overlays = [
-            inputs.eintopf-radar-sync.overlay
+            inputs.mail-quota-warning.overlay
           ];
 
         })
@@ -42,30 +43,26 @@ Add the module to your `flake.nix`:
 Add this to your `configuration.nix` file
 
 ```nix
-environment.etc."eintopf-radar-sync-secrets".text = ''
+environment.etc."eintopf-radar-sync-secrets.yml".text = ''
 EINTOPF_AUTHORIZATION_TOKEN=foobar23
 '';
 
-services.eintopf-radar-sync = {
+services.mail-quota-warning = {
   enable = true;
   settings = {
     EINTOPF_URL = "https://karlsunruh.eintopf.info";
     RADAR_GROUP_ID = "436012";
   };
-  secrets = [ /etc/eintopf-radar-sync-secrets ];
+  secrets = [ /etc/mail-quota-warning-secrets.yml ];
 };
 ```
 
 Replace setting variables according to your setup.
 
-Get the authorization token through login request in the Eintopf
-Swagger api interface, for example
-https://karlsunruh.project-insanity.org/api/v1/swagger#/auth/login
-
 ### From source
 
 ```
-cd eintopf-radar-sync
+cd mail-quota-warning
 nix develop
 export EINTOPF_URL = "https://karlsunruh.eintopf.info"
 export EINTOPF_AUTHORIZATION_TOKEN = "secret key"
