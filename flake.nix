@@ -23,7 +23,7 @@
 
         src = self;
 
-        dependencies = with python3Packages; [ falcon requests jinja2 ];
+        propagatedBuildInputs = with python3Packages; [ falcon requests jinja2 ];
 
         installPhase = ''
           install -Dm755 ${./fragify.py} $out/bin/fragify
@@ -37,7 +37,7 @@
           fi
         '';
 
-        passthru.pythonPath = python3Packages.makePythonPath dependencies;
+        passthru.pythonPath = python3Packages.makePythonPath propagatedBuildInputs;
 
         meta.mainProgram = "fragify";
       };
