@@ -6,4 +6,7 @@ build:
 
 install:
 	mkdir -p $(DESTDIR)
-	cp -r assets $(DESTDIR)/ 
+	cp -r assets $(DESTDIR)/
+
+clean:
+	rm -rf assets 

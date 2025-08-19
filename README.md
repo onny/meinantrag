@@ -53,9 +53,6 @@ Füge dies zu deiner `configuration.nix` hinzu:
 ```nix
 services.fragify = {
   enable = true;
-  settings = {
-    # Konfiguration hier
-  };
 };
 ```
 
@@ -84,13 +81,46 @@ nix run
 - **API**: Integration mit der FragDenStaat.de API
 - **Styling**: Responsive Design mit Gradient-Hintergrund
 
-## API-Integration
+## Frontend-Assets (lokal statt CDN)
 
-Fragify nutzt die offizielle [FragDenStaat.de API](https://fragdenstaat.de/api/) um:
+Die Anwendung kann CSS/JS-Assets lokal bereitstellen. Dafür werden `npm` und `gulp` benutzt.
 
-- Behörden zu durchsuchen
-- Links zu generieren, die das Anfrage-Formular vorausfüllen
-- Die korrekte URL-Struktur von FragDenStaat.de zu verwenden
+### Bauen der Assets
+
+```bash
+# Abhängigkeiten installieren (nutzt npm ci, wenn package-lock.json existiert)
+make build
+# Alternativ ohne make
+npm install
+npm run build
+```
+
+Die gebauten Dateien landen in `assets/` und werden vom Server unter `/static/...` ausgeliefert:
+
+- CSS: `/static/css/bootstrap.min.css`, `/static/css/select2.min.css`, `/static/css/select2-bootstrap-5-theme.min.css`
+- JS: `/static/js/bootstrap.bundle.min.js`, `/static/js/jquery.min.js`, `/static/js/select2.min.js`
+
+### Hinweis
+- Stelle sicher, dass `assets/` existiert, sonst werden stattdessen CDN-Links erwartet.
+- In der Entwicklungs-Serverausgabe steht: "Serving static assets from: ..." – dort solltest du den Pfad zu `assets/` sehen.
+
+## Deployment mit Nix/uWSGI
+
+- Das Nix-Paket installiert Templates und (falls vorhanden) `assets/` nach `$out/share/fragify/...`.
+- Das NixOS-Modul startet uWSGI und erzeugt einen UNIX-Socket unter `unix:${config.services.uwsgi.runDir}/fragify.sock`.
+- Die App respektiert folgende Umgebungsvariablen:
+  - `FRAGIFY_TEMPLATES_DIR` – Pfad zu den Templates
+  - `FRAGIFY_STATIC_DIR` – Pfad zu den statischen Assets (`assets/`)
+
+Beispiel (im uWSGI-Instance Block):
+```nix
+services.uwsgi.instance.fragify = {
+  env = {
+    FRAGIFY_TEMPLATES_DIR = "${pkgs.fragify}/share/fragify/templates";
+    FRAGIFY_STATIC_DIR = "${pkgs.fragify}/share/fragify/assets";
+  };
+};
+```
 
 ## Entwicklung
 
@@ -109,6 +139,8 @@ python fragify.py
 - Python 3.8+
 - Falcon (Web-Framework)
 - Requests (HTTP-Client)
+- Node.js + npm (für lokale Assets)
+- gulp (wird via npm-Script genutzt)
 
 ## Lizenz
 

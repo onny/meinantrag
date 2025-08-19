@@ -181,14 +181,19 @@ app = falcon.App()
 # Discover static assets directory
 STATIC_DIR = os.environ.get('FRAGIFY_STATIC_DIR')
 if not STATIC_DIR:
-	# Prefer local assets folder in development
+	# Prefer local assets folder in development (relative to this file)
 	script_dir = os.path.dirname(os.path.abspath(__file__))
 	candidate = os.path.join(script_dir, 'assets')
 	if os.path.isdir(candidate):
 		STATIC_DIR = candidate
 	else:
-		# Fallback to packaged location under share
-		STATIC_DIR = os.path.join(script_dir, '..', 'share', 'fragify', 'assets')
+		# Try current working directory (useful when running packaged binary from project root)
+		cwd_candidate = os.path.join(os.getcwd(), 'assets')
+		if os.path.isdir(cwd_candidate):
+			STATIC_DIR = cwd_candidate
+		else:
+			# Fallback to packaged location under share
+			STATIC_DIR = os.path.join(script_dir, '..', 'share', 'fragify', 'assets')
 
 # Add routes
 fragify = FragifyApp()

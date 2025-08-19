@@ -41,6 +41,7 @@ in
 			pythonPackages = p: with p; [ falcon requests jinja2 ];
 			env = {
 				FRAGIFY_TEMPLATES_DIR = "${pkgs.fragify}/share/fragify/templates";
+				FRAGIFY_STATIC_DIR = "${pkgs.fragify}/share/fragify/assets";
 			};
 			socket = "unix:${config.services.uwsgi.runDir}/fragify.sock";
 			chmod-socket = "660";
