@@ -23,6 +23,8 @@
 
         src = self;
 
+        dontBuild = true;
+
         dependencies = with python3Packages; [ falcon requests jinja2 ];
 
         installPhase = ''
