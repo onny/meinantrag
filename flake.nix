@@ -36,6 +36,10 @@
           cp -r ${./templates} $out/share/fragify/
           # Provide a WSGI entry file for uWSGI to load
           install -Dm644 ${./fragify.py} $out/share/fragify/fragify_wsgi.py
+          # Install built assets if present
+          if [ -d ./assets ]; then
+            cp -r ./assets $out/share/fragify/
+          fi
         '';
 
         meta.mainProgram = "fragify";
