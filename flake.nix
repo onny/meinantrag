@@ -16,14 +16,14 @@
     );
   in {
     overlay = final: prev: {
-      fragify = with final; python3Packages.buildPythonApplication {
+      fragify = with final; python3Packages.buildPythonApplication rec {
         pname = "fragify";
         version = "0.0.1";
         format = "other";
 
         src = self;
 
-        propagatedBuildInputs = with python3Packages; [ falcon requests jinja2 ];
+        dependencies = with python3Packages; [ falcon requests jinja2 ];
 
         installPhase = ''
           install -Dm755 ${./fragify.py} $out/bin/fragify
@@ -37,7 +37,7 @@
           fi
         '';
 
-        passthru.pythonPath = python3Packages.makePythonPath propagatedBuildInputs;
+        passthru.pythonPath = python3Packages.makePythonPath dependencies;
 
         meta.mainProgram = "fragify";
       };
