@@ -16,6 +16,11 @@ class BaseTemplateResource:
     
     def _get_template_dir(self):
         """Get the template directory path, handling both development and installed environments"""
+        # Allow overriding via environment variable (for packaged deployments)
+        env_dir = os.environ.get('FRAGIFY_TEMPLATES_DIR')
+        if env_dir and os.path.exists(env_dir):
+            return env_dir
+
         # Get the directory where this script is located
         script_dir = os.path.dirname(os.path.abspath(__file__))
         

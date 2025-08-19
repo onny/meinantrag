@@ -34,6 +34,8 @@
           install -Dm755 ${./fragify.py} $out/bin/fragify
           mkdir -p $out/share/fragify
           cp -r ${./templates} $out/share/fragify/
+          # Provide a WSGI entry file for uWSGI to load
+          install -Dm644 ${./fragify.py} $out/share/fragify/fragify_wsgi.py
         '';
 
         meta.mainProgram = "fragify";
