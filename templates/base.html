@@ -23,6 +23,7 @@
     <meta name="twitter:title" content="{{ meta_title | default('Fragify') }}">
     <meta name="twitter:description" content="{{ meta_description | default('Erstelle vorausgefüllte FragDenStaat.de-Anfragelinks und teile sie mit Freund:innen.') }}">
 
+    {% if noindex %}<meta name="robots" content="noindex,follow">{% endif %}
     <meta name="theme-color" content="#667eea">
     <link rel="icon" href="/static/favicon.ico">
 

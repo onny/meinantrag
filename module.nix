@@ -14,47 +14,48 @@ in
 	options = {
 		services.fragify = {
 
-			enable = lib.mkOption {
-				type = lib.types.bool;
-				default = false;
-				description = ''
-					Enable fragify web application.
-				'';
-			};
+			enable = lib.mkEnableOption "Fragify web app";
 
 		};
 	};
 
 	config = lib.mkIf cfg.enable {
 
-		# uWSGI application definition for Fragify
-		services.uwsgi.enable = true;
-		services.uwsgi.user = "fragify";
-		services.uwsgi.group = "fragify";
-		services.uwsgi.plugins = [ "python3" ];
-		services.uwsgi.instance."fragify" = {
-			type = "normal";
-			chdir = "/";
-			# Load WSGI by file path from the packaged share dir
-			wsgi-file = "${pkgs.fragify}/share/fragify/fragify_wsgi.py";
-			module = "fragify:app";
-			pythonPackages = p: with p; [ falcon requests jinja2 ];
-			env = {
-				FRAGIFY_TEMPLATES_DIR = "${pkgs.fragify}/share/fragify/templates";
-				FRAGIFY_STATIC_DIR = "${pkgs.fragify}/share/fragify/assets";
+		services.uwsgi = {
+			enable = true;
+			user = "fragify";
+			group = "fragify";
+			plugins = [ "python3" ];
+			instances.fragify = {
+				# Align with upstream module: put uwsgi options under settings
+				settings = {
+					"chdir" = "/";
+					"wsgi-file" = "${pkgs.fragify}/share/fragify/fragify_wsgi.py";
+					module = "fragify:app";
+					# Socket
+					"socket" = "unix:${config.services.uwsgi.runDir}/fragify.sock";
+					"chmod-socket" = "660";
+					umask = "0077";
+					vacuum = true;
+					master = true;
+					processes = 2;
+					threads = 2;
+					"harakiri" = 60;
+					"buffer-size" = 65535;
+					"need-app" = true;
+					"no-orphans" = true;
+					# Serve static files directly via uWSGI (optional)
+					# Map /static to packaged assets directory (if present)
+					"static-map" = "/static=${pkgs.fragify}/share/fragify/assets";
+				};
+				# Environment for the WSGI app
+				env = {
+					FRAGIFY_TEMPLATES_DIR = "${pkgs.fragify}/share/fragify/templates";
+					FRAGIFY_STATIC_DIR = "${pkgs.fragify}/share/fragify/assets";
+				};
+				# Python packages for uWSGI
+				pythonPackages = p: with p; [ falcon requests jinja2 ];
 			};
-			socket = "unix:${config.services.uwsgi.runDir}/fragify.sock";
-			chmod-socket = "660";
-			umask = "0077";
-			vacuum = true;
-			master = true;
-			processes = 2;
-			threads = 2;
-			harakiri = 60;
-			buffer-size = 65535;
-			# Security hardening
-			need-app = true;
-			no-orphans = true;
 		};
 
 		# Ensure fragify user and group exist

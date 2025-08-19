@@ -11,6 +11,8 @@ import os
 import sys
 from jinja2 import Environment, FileSystemLoader
 
+SITE_BASE_URL = os.environ.get('FRAGIFY_BASE_URL', 'http://localhost:8000')
+
 class BaseTemplateResource:
 	"""Base class for resources that need template rendering"""
 	
@@ -55,16 +57,6 @@ class BaseTemplateResource:
 		# Fallback to current directory
 		return dev_template_dir
 
-class StaticResource:
-	def __init__(self, directory: str):
-		self._directory = directory
-		self._static = falcon.asgi.StaticRoute(directory)
-
-	def on_get(self, req, resp, path):
-		# Serve static files via falcon's static route helper
-		static_app = falcon.asgi.StaticRoute(self._directory)
-		return static_app(req, resp)
-
 class FragifyApp(BaseTemplateResource):
 	def __init__(self):
 		self.fragdenstaat_api = "https://fragdenstaat.de/api/v1"
@@ -77,7 +69,11 @@ class FragifyApp(BaseTemplateResource):
 		"""Serve the main page"""
 		template = self.jinja_env.get_template('index.html')
 		resp.content_type = 'text/html; charset=utf-8'
-		resp.text = template.render()
+		resp.text = template.render(
+			meta_title='Fragify – Anfragelinks für FragDenStaat',
+			meta_description='Erstelle vorausgefüllte Anfragelinks für FragDenStaat.de, suche Behörden, füge Betreff und Text hinzu und teile den Link.',
+			canonical_url=f"{SITE_BASE_URL}/"
+		)
 	
 	def on_post(self, req, resp):
 		"""Handle form submission and generate link"""
@@ -124,7 +120,12 @@ class ImpressumResource(BaseTemplateResource):
 		"""Serve the Impressum page"""
 		template = self.jinja_env.get_template('impressum.html')
 		resp.content_type = 'text/html; charset=utf-8'
-		resp.text = template.render()
+		resp.text = template.render(
+			meta_title='Impressum – Fragify',
+			meta_description='Impressum für Fragify.',
+			canonical_url=f"{SITE_BASE_URL}/impressum",
+			noindex=True
+		)
 
 class DatenschutzResource(BaseTemplateResource):
 	def __init__(self):
@@ -135,7 +136,12 @@ class DatenschutzResource(BaseTemplateResource):
 		"""Serve the Datenschutz page"""
 		template = self.jinja_env.get_template('datenschutz.html')
 		resp.content_type = 'text/html; charset=utf-8'
-		resp.text = template.render()
+		resp.text = template.render(
+			meta_title='Datenschutz – Fragify',
+			meta_description='Datenschutzerklärung für Fragify. Keine Cookies, es werden nur Anfragen an die FragDenStaat-API gestellt.',
+			canonical_url=f"{SITE_BASE_URL}/datenschutz",
+			noindex=True
+		)
 
 class PublicBodiesResource:
 	def __init__(self):
@@ -175,6 +181,25 @@ class PublicBodiesResource:
 				'next': None
 			})
 
+class RobotsResource:
+	def on_get(self, req, resp):
+		resp.content_type = 'text/plain; charset=utf-8'
+		resp.text = f"""User-agent: *
+Allow: /
+Sitemap: {SITE_BASE_URL}/sitemap.xml
+"""
+
+class SitemapResource:
+	def on_get(self, req, resp):
+		resp.content_type = 'application/xml; charset=utf-8'
+		resp.text = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>{SITE_BASE_URL}/</loc></url>
+  <url><loc>{SITE_BASE_URL}/impressum</loc></url>
+  <url><loc>{SITE_BASE_URL}/datenschutz</loc></url>
+</urlset>
+"""
+
 # Create Falcon application
 app = falcon.App()
 
@@ -200,11 +225,15 @@ fragify = FragifyApp()
 impressum = ImpressumResource()
 datenschutz = DatenschutzResource()
 publicbodies = PublicBodiesResource()
+robots = RobotsResource()
+sitemap = SitemapResource()
 
 app.add_route('/', fragify)
 app.add_route('/impressum', impressum)
 app.add_route('/datenschutz', datenschutz)
 app.add_route('/api/publicbodies', publicbodies)
+app.add_route('/robots.txt', robots)
+app.add_route('/sitemap.xml', sitemap)
 
 # Static file route
 if STATIC_DIR and os.path.isdir(STATIC_DIR):
