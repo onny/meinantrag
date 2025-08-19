@@ -1,0 +1,16 @@
+{
+  "name": "fragify-assets",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "^5.3.3",
+    "jquery": "^3.7.1",
+    "select2": "^4.1.0-rc.0",
+    "select2-bootstrap-5-theme": "^1.3.0",
+    "gulp": "^4.0.2",
+    "gulp-copy": "^4.0.1"
+  },
+  "scripts": {
+    "build": "gulp"
+  }
+} 
