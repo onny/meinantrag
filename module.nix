@@ -45,11 +45,11 @@ in
 						"buffer-size" = 65535;
 						need-app = true;
 						"no-orphans" = true;
-						env = {
-							PYTHONPATH = "${pkgs.fragify.pythonPath}";
-							FRAGIFY_TEMPLATES_DIR = "${pkgs.fragify}/share/fragify/templates";
-							FRAGIFY_STATIC_DIR = "${pkgs.fragify}/share/fragify/assets";
-						};
+						env = [
+							"PYTHONPATH=${pkgs.fragify.pythonPath}"
+							"FRAGIFY_TEMPLATES_DIR=${pkgs.fragify}/share/fragify/templates"
+							"FRAGIFY_STATIC_DIR=${pkgs.fragify}/share/fragify/assets"
+						];
 						settings = {
 							"static-map" = "/static=${pkgs.fragify}/share/fragify/assets";
 						};
