@@ -12,71 +12,13 @@ in
 {
 
   options = {
-    services.mail-quota-warning = {
+    services.fragify = {
 
       enable = lib.mkOption {
         type = lib.types.bool;
         default = false;
         description = ''
-          Enable mail-quota-warning daemon.
-        '';
-      };
-
-      settings = lib.mkOption {
-        type = lib.types.submodule {
-          freeformType = with lib.types; attrsOf anything;
-          options = {
-            CHECK_INTERVAL_DAYS = lib.mkOption {
-              default = 7;
-              type = lib.types.int;
-              description = ''
-                Interval of days in which a warning message will be
-                delivered.
-              '';
-            };
-            QUOTA_WARNING_THRESHOLD_PERCENT = lib.mkOption {
-              default = 80;
-              type = lib.types.int;
-              description = ''
-                Threshold of used mailbox space in percent after which
-                a warning message will be delivered.
-              '';
-            };
-          };
-        };
-        default = { };
-        description = ''
-          Extra options which should be used by the mailbox quota warning script.
-        '';
-        example = lib.literalExpression ''
-          {
-            CHECK_INTERVAL_DAYS = 7;
-            QUOTA_WARNING_THRESHOLD_PERCENT = 80;
-          }
-        '';
-      };
-
-      secretFile = lib.mkOption {
-        type = lib.types.nullOr (lib.types.pathWith {
-          inStore = false;
-          absolute = true;
-        });
-        default = null;
-        example = "/run/keys/mail-quota-warning-secrets";
-        description = ''
-          A YAML file containing secrets, see example config file
-          in the repository.
-        '';
-      };
-
-      interval = lib.mkOption {
-        type = lib.types.str;
-        default = "*:00,30:00";
-        description = ''
-          How often we run the sync. Default is half an hour.
-
-          The format is described in
-          {manpage}`systemd.time(7)`.
+          Enable fragify web application.
         '';
       };
 
@@ -85,31 +27,32 @@ in
 
   config = lib.mkIf cfg.enable {
 
-    systemd.services."mail-quota-warning" = {
-      description = "mail-quota-warning script";
+    systemd.services."fragify" = {
+      description = "fragify web application";
       after = [ "network.target" ];
       wants = [ "network-online.target" ];
       environment = {
         PYTHONUNBUFFERED = "1";
-      }
-      // lib.mapAttrs (_: v: toString v) cfg.settings;
+      };
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${lib.getExe pkgs.mail-quota-warning}${lib.optionalString (cfg.secretFile != null) " --config ${cfg.secretFile}"}";
-        WorkingDirectory = "%S/mail-quota-warning";
-        StateDirectory = "mail-quota-warning";
+        ExecStart = "${lib.getExe pkgs.fragify}";
+        WorkingDirectory = "%S/fragify";
+        StateDirectory = "fragify";
+        User = "fragify";
+        Group = "fragify";
 
         # hardening
         AmbientCapabilities = "";
         CapabilityBoundingSet = "";
         DevicePolicy = "closed";
-        DynamicUser = true;
+        DynamicUser = false;
         LockPersonality = true;
         MemoryDenyWriteExecute = true;
         NoNewPrivileges = true;
         PrivateDevices = true;
         PrivateTmp = true;
-        PrivateUsers = true;
+        PrivateUsers = false;
         ProcSubset = "pid";
         ProtectClock = true;
         ProtectControlGroups = true;
@@ -137,15 +80,14 @@ in
       };
     };
 
-    systemd.timers.mail-quota-warning = {
-      timerConfig = {
-        OnCalendar = [
-          ""
-          cfg.interval
-        ];
-      };
-      wantedBy = [ "timers.target" ];
+    # Create fragify user and group
+    users.users.fragify = {
+      isSystemUser = true;
+      group = "fragify";
+      description = "fragify web application user";
     };
+
+    users.groups.fragify = {};
 
   };
 

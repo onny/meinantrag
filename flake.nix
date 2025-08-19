@@ -1,5 +1,5 @@
 {
-  description = "mail-quota-warning package and service";
+  description = "fragify package and service";
 
   inputs.nixpkgs.url = "nixpkgs/nixos-25.05";
 
@@ -16,8 +16,8 @@
     );
   in {
     overlay = final: prev: {
-      mail-quota-warning = with final; python3Packages.buildPythonApplication {
-        pname = "mail-quota-warning";
+      fragify = with final; python3Packages.buildPythonApplication {
+        pname = "fragify";
         version = "0.0.1";
         format = "other";
 
@@ -25,23 +25,26 @@
 
         dependencies = with python3Packages; [
           python
-	  pyyaml
-	  imaplib2
+          falcon
+          requests
+          jinja2
         ];
 
         installPhase = ''
-          install -Dm755 ${./mail-quota-warning.py} $out/bin/mail-quota-warning
+          install -Dm755 ${./fragify.py} $out/bin/fragify
+          mkdir -p $out/share/fragify
+          cp -r ${./templates} $out/share/fragify/
         '';
 
-	meta.mainProgram = "mail-quota-warning";
+        meta.mainProgram = "fragify";
       };
     };
 
     packages = forAllSystems (system: {
-      inherit (nixpkgsFor.${system}) mail-quota-warning;
+      inherit (nixpkgsFor.${system}) fragify;
     });
 
-    defaultPackage = forAllSystems (system: self.packages.${system}.mail-quota-warning);
+    defaultPackage = forAllSystems (system: self.packages.${system}.fragify);
 
     devShells = forAllSystems (system: let
       pkgs = import nixpkgs { inherit system; overlays = [ self.overlay ]; };
@@ -53,7 +56,7 @@
       ];
     });
 
-    # mail-quota-warning service module
+    # fragify service module
     nixosModule = (import ./module.nix);
   };
 }

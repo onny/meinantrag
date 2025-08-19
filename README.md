@@ -1,18 +1,26 @@
-# mail-quota-warning
+# Fragify
 
-Small script to check a configured list of IMAP accounts for mailbox quota and send
-a warning mail in case a specific threashold is exceeded.
+Eine einfache Web-Anwendung, um vorausgefüllte Links für Anfragen bei [FragDenStaat.de](https://fragdenstaat.de) zu generieren, die du an Freund:innen schicken kannst.
+
+## Was ist Fragify?
+
+Fragify ist ein webbasiertes Tool, das es dir ermöglicht, schnell und einfach Anfragen bei deutschen Behörden über das Informationsfreiheitsportal FragDenStaat.de zu erstellen. Du kannst:
+
+- Nach Behörden suchen und auswählen
+- Betreff und Inhalt der Anfrage vorausfüllen
+- Einen fertigen Link generieren, der alle Informationen enthält
+- Den Link mit anderen teilen, die dann nur noch auf "Senden" klicken müssen
 
 ## Installation
 
 ### NixOS
 
-Add the module to your `flake.nix`:
+Füge das Modul zu deiner `flake.nix` hinzu:
 
 ```nix
 {
   inputs = {
-    mail-quota-warning.url = "git+https://git.project-insanity.org/onny/mail-quota-warning.git";
+    fragify.url = "git+https://git.project-insanity.org/onny/fragify.git";
     [...]
   };
 
@@ -22,12 +30,12 @@ Add the module to your `flake.nix`:
       system = "x86_64-linux";
       specialArgs.inputs = inputs;
       modules = [
-        inputs.mail-quota-warning.nixosModule
+        inputs.fragify.nixosModule
 
         ({ pkgs, ... }:{
 
           nixpkgs.overlays = [
-            inputs.mail-quota-warning.overlay
+            inputs.fragify.overlay
           ];
 
         })
@@ -40,52 +48,78 @@ Add the module to your `flake.nix`:
 }
 ```
 
-Add this to your `configuration.nix` file
+Füge dies zu deiner `configuration.nix` hinzu:
 
 ```nix
-environment.etc."mail-quota-warning-secrets.yml".text = ''
-accounts:
-  - name: Sales
-    imap_server: mail.example.com
-    imap_port: 993
-    username: sales@example.com
-    password: secret
-
-  - name: Support
-    imap_server: mail.example.com
-    imap_port: 993
-    username: support@example.com
-    password: secret
-
-mail:
-  smtp_server: mail.example.com
-  smtp_port: 587
-  smtp_username: monitoring@example.com
-  smtp_password: secret
-  from_address: monitoring@example.com
-  recipients:
-    - admin1@example.com
-    - admin2@example.com
-'';
-
-services.mail-quota-warning = {
+services.fragify = {
   enable = true;
   settings = {
-    CHECK_INTERVAL_DAYS = 7;
-    QUOTA_WARNING_THRESHOLD_PERCENT = 80;    
+    # Konfiguration hier
   };
-  secretFile = "/etc/mail-quota-warning-secrets.yml";
 };
 ```
 
-Replace setting variables according to your setup.
+### Von der Quelle
 
-### From source
-
-```
-cd mail-quota-warning
+```bash
+cd fragify
 nix develop
-export CHECK_INTERVAL_DAYS=7
-export QUOTA_WARNING_THRESHOLD_PERCENT=80
 nix run
 ```
+
+Öffne dann deinen Browser und navigiere zu: http://localhost:8000
+
+## Verwendung
+
+1. **Behörde auswählen**: Suche und wähle die gewünschte Behörde aus dem Dropdown-Menü
+2. **Betreff eingeben**: Gib einen aussagekräftigen Betreff für deine Anfrage ein
+3. **Anfrage beschreiben**: Beschreibe detailliert, welche Dokumente oder Informationen du anfragen möchtest
+4. **Link generieren**: Klicke auf "Anfrage Link generieren"
+5. **Link teilen**: Kopiere den generierten Link und teile ihn mit anderen
+
+## Technische Details
+
+- **Framework**: Falcon (Python)
+- **Frontend**: Bootstrap 5 mit modernem Design
+- **API**: Integration mit der FragDenStaat.de API
+- **Styling**: Responsive Design mit Gradient-Hintergrund
+
+## API-Integration
+
+Fragify nutzt die offizielle [FragDenStaat.de API](https://fragdenstaat.de/api/) um:
+
+- Behörden zu durchsuchen
+- Links zu generieren, die das Anfrage-Formular vorausfüllen
+- Die korrekte URL-Struktur von FragDenStaat.de zu verwenden
+
+## Entwicklung
+
+### Lokale Entwicklung
+
+```bash
+# Entwicklungsumgebung starten
+nix develop
+
+# Anwendung starten
+python fragify.py
+```
+
+### Abhängigkeiten
+
+- Python 3.8+
+- Falcon (Web-Framework)
+- Requests (HTTP-Client)
+
+## Lizenz
+
+Dieses Projekt steht unter der gleichen Lizenz wie FragDenStaat.de.
+
+## Beitragen
+
+Beiträge sind willkommen! Bitte erstelle einen Pull Request oder öffne ein Issue.
+
+## Links
+
+- [FragDenStaat.de](https://fragdenstaat.de) - Das Hauptportal
+- [FragDenStaat API](https://fragdenstaat.de/api/) - API-Dokumentation
+- [Informationsfreiheitsgesetz](https://fragdenstaat.de/informationsfreiheit/) - Rechtliche Grundlagen

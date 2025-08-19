@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Fragify{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="title display-4">Fragify</h1>
+    <p class="description">
+        Erstelle einfach Links für Anfragen bei dem Portal 
+        <a href="https://fragdenstaat.de" target="_blank" class="text-decoration-none">FragDenStaat.de</a>, 
+        welche du vorausfüllen und an Freund:innen schicken kannst!
+    </p>
+    
+    <form id="fragifyForm" class="text-start">
+        <div class="mb-4">
+            <label for="publicbody" class="form-label fw-bold">Behörde</label>
+            <select class="form-select" id="publicbody" name="publicbody_id" required>
+                <option value="">Behörde auswählen...</option>
+            </select>
+        </div>
+        
+        <div class="mb-4">
+            <label for="subject" class="form-label fw-bold">Betreff</label>
+            <input type="text" class="form-control" id="subject" name="subject" 
+                   placeholder="Betreff der Anfrage" required>
+        </div>
+        
+        <div class="mb-4">
+            <label for="body" class="form-label fw-bold">Dokumente anfragen:</label>
+            <textarea class="form-control" id="body" name="body" rows="5" 
+                      placeholder="Beschreibe hier, welche Dokumente oder Informationen du anfragen möchtest..." required></textarea>
+        </div>
+        
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <span class="btn-text">Anfrage Link generieren</span>
+                <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
+            </button>
+        </div>
+    </form>
+    
+    <div id="result" class="mt-4" style="display: none;">
+        <h5 class="text-success mb-3">Link erfolgreich generiert!</h5>
+        <div class="result-link">
+            <a href="" id="generatedLink" target="_blank"></a>
+        </div>
+        <button class="btn btn-outline-primary mt-3" onclick="copyToClipboard()">
+            Link kopieren
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Initialize Select2 for public bodies
+        $('#publicbody').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Behörde auswählen...',
+            allowClear: true,
+            ajax: {
+                url: '/api/publicbodies',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        search: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results.map(function(item) {
+                            return {
+                                id: item.id,
+                                text: item.name + ' (' + item.jurisdiction + ')'
+                            };
+                        }),
+                        pagination: {
+                            more: data.next !== null
+                        }
+                    };
+                },
+                cache: true
+            }
+        });
+        
+        // Handle form submission
+        $('#fragifyForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = $('button[type="submit"]');
+            const btnText = submitBtn.find('.btn-text');
+            const loading = submitBtn.find('.loading');
+            
+            // Show loading state
+            btnText.hide();
+            loading.show();
+            submitBtn.prop('disabled', true);
+            
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#generatedLink').attr('href', data.link).text(data.link);
+                    $('#result').show();
+                    $('#fragifyForm')[0].reset();
+                    $('#publicbody').val(null).trigger('change');
+                } else {
+                    alert('Fehler: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Fehler beim Generieren des Links: ' + error);
+            })
+            .finally(() => {
+                // Hide loading state
+                btnText.show();
+                loading.hide();
+                submitBtn.prop('disabled', false);
+            });
+        });
+    });
+    
+    function copyToClipboard() {
+        const link = document.getElementById('generatedLink').href;
+        navigator.clipboard.writeText(link).then(function() {
+            alert('Link wurde in die Zwischenablage kopiert!');
+        });
+    }
+</script>
+{% endblock %} 
