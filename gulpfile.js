@@ -31,6 +31,13 @@ gulp.task('copy-select2-theme', function () {
     .pipe(gulp.dest('./assets/css'));
 });
 
-gulp.task('copy-assets', gulp.series('copy-bulk', 'copy-jquery', 'copy-select2-theme'));
+// Copy favicon(s)
+gulp.task('copy-favicon', function () {
+  return gulp
+    .src(['./favicon.svg'], { allowEmpty: true })
+    .pipe(gulp.dest('./assets'));
+});
+
+gulp.task('copy-assets', gulp.series('copy-bulk', 'copy-jquery', 'copy-select2-theme', 'copy-favicon'));
 
 gulp.task('default', gulp.series('copy-assets')); 

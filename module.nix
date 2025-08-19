@@ -44,11 +44,11 @@ in
 			"no-orphans" = true;
 			# Pass environment to the app
 			env = {
+				PYTHONPATH = "${pkgs.fragify.pythonPath}";
 				FRAGIFY_TEMPLATES_DIR = "${pkgs.fragify}/share/fragify/templates";
 				FRAGIFY_STATIC_DIR = "${pkgs.fragify}/share/fragify/assets";
 			};
-			# Python deps for the embedded interpreter
-			pythonPackages = p: with p; [ falcon requests jinja2 ];
+			# Python deps for the embedded interpreter moved to PYTHONPATH in env
 			# Extra raw uWSGI settings not covered by module options
 			settings = {
 				"static-map" = "/static=${pkgs.fragify}/share/fragify/assets";
