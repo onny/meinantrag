@@ -23,8 +23,6 @@ in
 
 		# uWSGI configuration (nixos-25.05 uses `instance`, not `instances`)
 		services.uwsgi.enable = true;
-		services.uwsgi.user = "fragify";
-		services.uwsgi.group = "fragify";
 		services.uwsgi.plugins = [ "python3" ];
 		services.uwsgi.instance."fragify" = {
 			type = "normal";
