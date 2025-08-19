@@ -41,12 +41,10 @@
     
     <div id="result" class="mt-4" style="display: none;">
         <h5 class="text-success mb-3">Link erfolgreich generiert!</h5>
-        <div class="result-link">
-            <a href="" id="generatedLink" target="_blank"></a>
+        <div class="input-group">
+            <input type="text" class="form-control" id="generatedLinkInput" readonly>
+            <button class="btn btn-outline-primary" type="button" id="copyBtn">In Zwischenablage</button>
         </div>
-        <button class="btn btn-outline-primary mt-3" onclick="copyToClipboard()">
-            Link kopieren
-        </button>
     </div>
 </div>
 {% endblock %}
@@ -72,14 +70,14 @@
                 processResults: function(data, params) {
                     params.page = params.page || 1;
                     return {
-                        results: data.results.map(function(item) {
+                        results: data.objects.map(function(item) {
                             return {
                                 id: item.id,
-                                text: item.name + ' (' + item.jurisdiction + ')'
+                                text: item.name + ' (' + item.jurisdiction.name + ')'
                             };
                         }),
                         pagination: {
-                            more: data.next !== null
+                            more: data.meta.next !== null
                         }
                     };
                 },
@@ -87,52 +85,41 @@
             }
         });
         
-        // Handle form submission
+        // Handle form submission (client-side)
         $('#fragifyForm').on('submit', function(e) {
             e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitBtn = $('button[type="submit"]');
-            const btnText = submitBtn.find('.btn-text');
-            const loading = submitBtn.find('.loading');
-            
-            // Show loading state
-            btnText.hide();
-            loading.show();
-            submitBtn.prop('disabled', true);
-            
-            fetch('/', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    $('#generatedLink').attr('href', data.link).text(data.link);
-                    $('#result').show();
-                    $('#fragifyForm')[0].reset();
-                    $('#publicbody').val(null).trigger('change');
-                } else {
-                    alert('Fehler: ' + data.error);
-                }
-            })
-            .catch(error => {
-                alert('Fehler beim Generieren des Links: ' + error);
-            })
-            .finally(() => {
-                // Hide loading state
-                btnText.show();
-                loading.hide();
-                submitBtn.prop('disabled', false);
+
+            const publicbodyId = $('#publicbody').val() || '';
+            const subject = $('#subject').val() || '';
+            const body = $('#body').val() || '';
+
+            let link = 'https://fragdenstaat.de/anfrage-stellen/';
+            if (publicbodyId) {
+                link += `an/${publicbodyId}/`;
+            }
+
+            const params = new URLSearchParams();
+            if (subject) params.set('subject', subject);
+            if (body) params.set('body', body);
+
+            if ([...params].length > 0) {
+                link += `?${params.toString()}`;
+            }
+
+            $('#generatedLinkInput').val(link);
+            $('#result').show();
+        });
+
+        // Copy to clipboard
+        $(document).on('click', '#copyBtn', function() {
+            const link = $('#generatedLinkInput').val();
+            navigator.clipboard.writeText(link).then(function() {
+                const btn = $('#copyBtn');
+                const originalText = btn.text();
+                btn.text('Kopiert!');
+                setTimeout(() => btn.text(originalText), 1500);
             });
         });
     });
-    
-    function copyToClipboard() {
-        const link = document.getElementById('generatedLink').href;
-        navigator.clipboard.writeText(link).then(function() {
-            alert('Link wurde in die Zwischenablage kopiert!');
-        });
-    }
 </script>
 {% endblock %} 

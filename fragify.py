@@ -67,11 +67,10 @@ class FragifyApp(BaseTemplateResource):
     def on_post(self, req, resp):
         """Handle form submission and generate link"""
         try:
-            # Parse form data
-            form_data = req.get_media()
-            publicbody_id = form_data.get('publicbody_id', '')
-            subject = form_data.get('subject', '')
-            body = form_data.get('body', '')
+            # Parse form data - use get_param for form fields
+            publicbody_id = req.get_param('publicbody_id', default='')
+            subject = req.get_param('subject', default='')
+            body = req.get_param('body', default='')
             
             # Generate FragDenStaat.de link
             base_url = "https://fragdenstaat.de/anfrage-stellen/"
