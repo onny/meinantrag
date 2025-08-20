@@ -34,7 +34,7 @@ in
 
             module = "fragify_wsgi:app";
 
-            socket = "unix:${config.services.uwsgi.runDir}/fragify.sock";
+            socket = "${config.services.uwsgi.runDir}/fragify.sock";
             "chmod-socket" = "660";
 
             umask = "0077";
