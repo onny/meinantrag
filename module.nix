@@ -6,15 +6,15 @@
 }:
 let
 
-  cfg = config.services.fragify;
+  cfg = config.services.meinantrag;
 
 in
 {
 
   options = {
-    services.fragify = {
+    services.meinantrag = {
 
-      enable = lib.mkEnableOption "Fragify web app";
+      enable = lib.mkEnableOption "MeinAntrag web app";
 
     };
   };
@@ -28,13 +28,13 @@ in
       instance = {
         type = "emperor";
         vassals = {
-          fragify = {
+          meinantrag = {
             type = "normal";
             chdir = "/";
 
-            module = "fragify_wsgi:app";
+            module = "meinantrag_wsgi:app";
 
-            socket = "${config.services.uwsgi.runDir}/fragify.sock";
+            socket = "${config.services.uwsgi.runDir}/meinantrag.sock";
             "chmod-socket" = "660";
 
             umask = "0077";
@@ -48,27 +48,27 @@ in
             "no-orphans" = true;
 
             env = [
-              "PYTHONPATH=${pkgs.fragify}/share/fragify:${pkgs.fragify.pythonPath}"
-              "FRAGIFY_TEMPLATES_DIR=${pkgs.fragify}/share/fragify/templates"
-              "FRAGIFY_STATIC_DIR=${pkgs.fragify}/share/fragify/assets"
+              "PYTHONPATH=${pkgs.meinantrag}/share/meinantrag:${pkgs.meinantrag.pythonPath}"
+              "MEINANTRAG_TEMPLATES_DIR=${pkgs.meinantrag}/share/meinantrag/templates"
+              "MEINANTRAG_STATIC_DIR=${pkgs.meinantrag}/share/meinantrag/assets"
             ];
 
             settings = {
-              "static-map" = "/static=${pkgs.fragify}/share/fragify/assets";
+              "static-map" = "/static=${pkgs.meinantrag}/share/meinantrag/assets";
             };
           };
         };
       };
     };
 
-    # Ensure fragify user and group exist
-    users.users.fragify = {
+    # Ensure meinantrag user and group exist
+    users.users.meinantrag = {
       isSystemUser = true;
-      group = "fragify";
-      description = "fragify web application user";
+      group = "meinantrag";
+      description = "meinantrag web application user";
     };
 
-    users.groups.fragify = { };
+    users.groups.meinantrag = { };
   };
 
   meta = {

@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Fragify{% endblock %}
+{% block title %}MeinAntrag{% endblock %}
 
 {% block content %}
 <div class="text-center">
-    <h1 class="title display-4">Fragify</h1>
+    <h1 class="title display-4">MeinAntrag</h1>
     <p class="description">
         Erstelle einfach Links für Anfragen bei dem Portal 
         <a href="https://fragdenstaat.de" target="_blank" class="text-decoration-none">FragDenStaat.de</a>, 
         welche du vorausfüllen und an Freund:innen schicken kannst!
     </p>
     
-    <form id="fragifyForm" class="text-start">
+    <form id="meinantragForm" class="text-start">
         <div class="mb-4">
             <label for="publicbody" class="form-label fw-bold">Behörde</label>
             <select class="form-select" id="publicbody" name="publicbody_id" required>
@@ -87,7 +87,7 @@
         });
         
         // Handle form submission (client-side)
-        $('#fragifyForm').on('submit', function(e) {
+        $('#meinantragForm').on('submit', function(e) {
             e.preventDefault();
 
             const publicbodyId = $('#publicbody').val() || '';

@@ -1,5 +1,5 @@
 {
-  description = "fragify package and service";
+  description = "meinantrag package and service";
 
   inputs.nixpkgs.url = "nixpkgs/nixos-25.05";
 
@@ -16,8 +16,8 @@
     );
   in {
     overlay = final: prev: {
-      fragify = with final; python3Packages.buildPythonApplication rec {
-        pname = "fragify";
+      meinantrag = with final; python3Packages.buildPythonApplication rec {
+        pname = "meinantrag";
         version = "0.0.1";
         format = "other";
 
@@ -28,28 +28,28 @@
         dependencies = with python3Packages; [ falcon requests jinja2 ];
 
         installPhase = ''
-          install -Dm755 ${./fragify.py} $out/bin/fragify
-          mkdir -p $out/share/fragify
-          cp -r ${./templates} $out/share/fragify/templates
+          install -Dm755 ${./meinantrag.py} $out/bin/meinantrag
+          mkdir -p $out/share/meinantrag
+          cp -r ${./templates} $out/share/meinantrag/templates
           # Provide a WSGI entry file for uWSGI to load
-          install -Dm644 ${./fragify.py} $out/share/fragify/fragify_wsgi.py
+          install -Dm644 ${./meinantrag.py} $out/share/meinantrag/meinantrag_wsgi.py
           # Install built assets if present
           if [ -d ./assets ]; then
-            cp -r ./assets $out/share/fragify/
+            cp -r ./assets $out/share/meinantrag/
           fi
         '';
 
         passthru.pythonPath = python3Packages.makePythonPath dependencies;
 
-        meta.mainProgram = "fragify";
+        meta.mainProgram = "meinantrag";
       };
     };
 
     packages = forAllSystems (system: {
-      inherit (nixpkgsFor.${system}) fragify;
+      inherit (nixpkgsFor.${system}) meinantrag;
     });
 
-    defaultPackage = forAllSystems (system: self.packages.${system}.fragify);
+    defaultPackage = forAllSystems (system: self.packages.${system}.meinantrag);
 
     devShells = forAllSystems (system: let
       pkgs = import nixpkgs { inherit system; overlays = [ self.overlay ]; };
@@ -61,7 +61,7 @@
       ];
     });
 
-    # fragify service module
+    # meinantrag service module
     nixosModule = (import ./module.nix);
   };
 }

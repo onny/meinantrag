@@ -1,10 +1,10 @@
-# Fragify
+# MeinAntrag
 
 Eine einfache Web-Anwendung, um vorausgefüllte Links für Anfragen bei [FragDenStaat.de](https://fragdenstaat.de) zu generieren, die du an Freund:innen schicken kannst.
 
-## Was ist Fragify?
+## Was ist MeinAntrag?
 
-Fragify ist ein webbasiertes Tool, das es dir ermöglicht, schnell und einfach Anfragen bei deutschen Behörden über das Informationsfreiheitsportal FragDenStaat.de zu erstellen. Du kannst:
+MeinAntrag ist ein webbasiertes Tool, das es dir ermöglicht, schnell und einfach Anfragen bei deutschen Behörden über das Informationsfreiheitsportal FragDenStaat.de zu erstellen. Du kannst:
 
 - Nach Behörden suchen und auswählen
 - Betreff und Inhalt der Anfrage vorausfüllen
@@ -20,7 +20,7 @@ Füge das Modul zu deiner `flake.nix` hinzu:
 ```nix
 {
   inputs = {
-    fragify.url = "git+https://git.project-insanity.org/onny/fragify.git";
+    meinantrag.url = "git+https://git.project-insanity.org/onny/meinantrag.git";
     [...]
   };
 
@@ -30,12 +30,12 @@ Füge das Modul zu deiner `flake.nix` hinzu:
       system = "x86_64-linux";
       specialArgs.inputs = inputs;
       modules = [
-        inputs.fragify.nixosModule
+        inputs.meinantrag.nixosModule
 
         ({ pkgs, ... }:{
 
           nixpkgs.overlays = [
-            inputs.fragify.overlay
+            inputs.meinantrag.overlay
           ];
 
         })
@@ -51,7 +51,7 @@ Füge das Modul zu deiner `flake.nix` hinzu:
 Füge dies zu deiner `configuration.nix` hinzu:
 
 ```nix
-services.fragify = {
+services.meinantrag = {
   enable = true;
 };
 ```
@@ -59,7 +59,7 @@ services.fragify = {
 ### Von der Quelle
 
 ```bash
-cd fragify
+cd meinantrag
 nix develop
 nix run
 ```
@@ -106,18 +106,18 @@ Die gebauten Dateien landen in `assets/` und werden vom Server unter `/static/..
 
 ## Deployment mit Nix/uWSGI
 
-- Das Nix-Paket installiert Templates und (falls vorhanden) `assets/` nach `$out/share/fragify/...`.
-- Das NixOS-Modul startet uWSGI und erzeugt einen UNIX-Socket unter `unix:${config.services.uwsgi.runDir}/fragify.sock`.
+- Das Nix-Paket installiert Templates und (falls vorhanden) `assets/` nach `$out/share/meinantrag/...`.
+- Das NixOS-Modul startet uWSGI und erzeugt einen UNIX-Socket unter `unix:${config.services.uwsgi.runDir}/meinantrag.sock`.
 - Die App respektiert folgende Umgebungsvariablen:
-  - `FRAGIFY_TEMPLATES_DIR` – Pfad zu den Templates
-  - `FRAGIFY_STATIC_DIR` – Pfad zu den statischen Assets (`assets/`)
+  - `MEINANTRAG_TEMPLATES_DIR` – Pfad zu den Templates
+  - `MEINANTRAG_STATIC_DIR` – Pfad zu den statischen Assets (`assets/`)
 
 Beispiel (im uWSGI-Instance Block):
 ```nix
-services.uwsgi.instance.fragify = {
+services.uwsgi.instance.meinantrag = {
   env = {
-    FRAGIFY_TEMPLATES_DIR = "${pkgs.fragify}/share/fragify/templates";
-    FRAGIFY_STATIC_DIR = "${pkgs.fragify}/share/fragify/assets";
+    MEINANTRAG_TEMPLATES_DIR = "${pkgs.meinantrag}/share/meinantrag/templates";
+    MEINANTRAG_STATIC_DIR = "${pkgs.meinantrag}/share/meinantrag/assets";
   };
 };
 ```
@@ -131,7 +131,7 @@ services.uwsgi.instance.fragify = {
 nix develop
 
 # Anwendung starten
-python fragify.py
+python meinantrag.py
 ```
 
 ### Abhängigkeiten
