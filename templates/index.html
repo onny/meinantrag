@@ -6,34 +6,27 @@
 <div class="text-center">
     <h1 class="title display-4">MeinAntrag</h1>
     <p class="description">
-        Erstelle einfach Links für Anfragen bei dem Portal 
-        <a href="https://fragdenstaat.de" target="_blank" class="text-decoration-none">FragDenStaat.de</a>, 
-        welche du vorausfüllen und an Freund:innen schicken kannst!
+        Erstelle einfach Vorlagen für Anfragen oder Anträge an die Karlsruher Stadtverwaltung
+        zu deinem persönlichen Thema und schicke diese direkt an eine Stadtratsfraktion!
     </p>
     
     <form id="meinantragForm" class="text-start">
         <div class="mb-4">
-            <label for="publicbody" class="form-label fw-bold">Behörde</label>
-            <select class="form-select" id="publicbody" name="publicbody_id" required>
-                <option value="">Behörde auswählen...</option>
+            <label for="party" class="form-label fw-bold">Fraktion</label>
+            <select class="form-select" id="party" name="party_id" required>
+                <option value="">Fraktion auswählen...</option>
             </select>
         </div>
         
         <div class="mb-4">
-            <label for="subject" class="form-label fw-bold">Betreff</label>
-            <input type="text" class="form-control" id="subject" name="subject" 
-                   placeholder="Betreff der Anfrage" required>
-        </div>
-        
-        <div class="mb-4">
-            <label for="body" class="form-label fw-bold">Dokumente anfragen:</label>
+            <label for="body" class="form-label fw-bold">Mein Anliegen:</label>
             <textarea class="form-control" id="body" name="body" rows="5" 
-                      placeholder="Beschreibe hier, welche Dokumente oder Informationen du anfragen möchtest..." required></textarea>
+                      placeholder="Beschreibe hier, welche Anfrage oder Antrag du an die Stadtverwaltung stellen möchtest ..." required></textarea>
         </div>
         
         <div class="text-center">
             <button type="submit" class="btn btn-primary btn-lg">
-                <span class="btn-text">Anfrage Link generieren</span>
+                <span class="btn-text">Antrag generieren</span>
                 <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
             </button>
         </div>
