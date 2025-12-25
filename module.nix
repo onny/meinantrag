@@ -16,7 +16,7 @@ in
 
       enable = lib.mkEnableOption "MeinAntrag web app";
 
-      environment = lib.mkOption {
+      settings = lib.mkOption {
         type = lib.types.attrsOf lib.types.str;
         default = { };
         example = {
@@ -64,7 +64,7 @@ in
               "PYTHONPATH=${pkgs.meinantrag}/share/meinantrag:${pkgs.meinantrag.pythonPath}"
               "MEINANTRAG_TEMPLATES_DIR=${pkgs.meinantrag}/share/meinantrag/templates"
               "MEINANTRAG_STATIC_DIR=${pkgs.meinantrag}/share/meinantrag/assets"
-            ] ++ (lib.mapAttrsToList (name: value: "${name}=${value}") cfg.environment);
+            ] ++ (lib.mapAttrsToList (name: value: "${name}=${value}") cfg.settings);
 
             settings = {
               "static-map" = "/static=${pkgs.meinantrag}/share/meinantrag/assets";
