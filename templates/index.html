@@ -11,107 +11,295 @@
     </p>
     
     <form id="meinantragForm" class="text-start">
-        <div class="mb-4">
-            <label for="party" class="form-label fw-bold">Fraktion</label>
-            <select class="form-select" id="party" name="party_id" required>
-                <option value="">Fraktion auswählen...</option>
-            </select>
+        <div id="inputFields">
+            <div class="mb-4">
+                <label for="party" class="form-label fw-bold">Fraktion</label>
+                <select class="form-select" id="party" name="party_id" required>
+                    <option value="">Fraktion auswählen...</option>
+                    <option value="SPD">SPD</option>
+                    <option value="GRÜNEN">GRÜNEN</option>
+                    <option value="CDU">CDU</option>
+                    <option value="FDP/FW">FDP/FW</option>
+                    <option value="Volt">Volt</option>
+                    <option value="DIE LINKE">DIE LINKE</option>
+                    <option value="KAL">KAL</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label for="anliegen" class="form-label fw-bold">Mein Anliegen:</label>
+                <textarea class="form-control" id="anliegen" name="anliegen" rows="5" 
+                          placeholder="Beschreibe hier, welche Anfrage oder Antrag du an die Stadtverwaltung stellen möchtest ..." required></textarea>
+            </div>
+            
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <span class="btn-text">Antrag generieren</span>
+                    <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
+                </button>
+            </div>
         </div>
         
-        <div class="mb-4">
-            <label for="body" class="form-label fw-bold">Mein Anliegen:</label>
-            <textarea class="form-control" id="body" name="body" rows="5" 
-                      placeholder="Beschreibe hier, welche Anfrage oder Antrag du an die Stadtverwaltung stellen möchtest ..." required></textarea>
-        </div>
-        
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary btn-lg">
-                <span class="btn-text">Antrag generieren</span>
-                <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
-            </button>
+        <div id="resultFields" class="text-start" style="display: none;">
+            <div class="mb-3">
+                <a href="#" id="backLink" class="text-decoration-none">
+                    <span>← Zurück</span>
+                </a>
+            </div>
+            
+            <div class="mb-4">
+                <label for="antragstitel" class="form-label fw-bold">Antragstitel</label>
+                <input type="text" class="form-control" id="antragstitel" name="antragstitel">
+            </div>
+            
+            <div class="mb-4">
+                <label for="forderung" class="form-label fw-bold">Forderung</label>
+                <textarea class="form-control" id="forderung" name="forderung" rows="5"></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label for="begruendung" class="form-label fw-bold">Begründung/Sachverhalt</label>
+                <textarea class="form-control" id="begruendung" name="begruendung" rows="8"></textarea>
+            </div>
+            
+            <div class="mb-4 d-flex gap-2 flex-wrap justify-content-center">
+                <button type="button" class="btn btn-primary" id="mailBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope me-2" viewBox="0 0 16 16">
+                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+                    </svg>
+                    <span id="mailBtnText">Mail an Fraktion senden</span>
+                </button>
+                <button type="button" class="btn btn-primary" id="pdfBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf me-2" viewBox="0 0 16 16">
+                        <path d="M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5z"/>
+                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                    </svg>
+                    PDF anzeigen
+                </button>
+                <button type="button" class="btn btn-primary" id="wordBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-word me-2" viewBox="0 0 16 16">
+                        <path d="M5.485 6.879a.5.5 0 1 0-.97.242l1.5 6a.5.5 0 0 0 .539.314l1.5-.5a.5.5 0 0 0 .186-.596l-.737-2.945 2.679-3.42a.5.5 0 1 0-.758-.652L6.978 8.616l-1.493-.5z"/>
+                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
+                    </svg>
+                    Word-Datei herunterladen
+                </button>
+            </div>
         </div>
     </form>
-    
-    <div id="result" class="mt-4" style="display: none;">
-        <h5 class="text-success mb-3">Link erfolgreich generiert!</h5>
-        <div class="input-group">
-            <input type="text" class="form-control" id="generatedLinkInput" readonly>
-            <button class="btn btn-outline-primary" type="button" id="copyBtn">In Zwischenablage</button>
-        </div>
-    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     $(document).ready(function() {
-        // Initialize Select2 for public bodies
-        $('#publicbody').select2({
-            theme: 'bootstrap-5',
-            placeholder: 'Behörde auswählen...',
-            allowClear: true,
-            width: '100%',
-            ajax: {
-                url: '/api/publicbodies',
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return {
-                        search: params.term,
-                        page: params.page || 1
-                    };
-                },
-                processResults: function(data, params) {
-                    params.page = params.page || 1;
-                    return {
-                        results: data.objects.map(function(item) {
-                            return {
-                                id: item.id,
-                                text: item.name + ' (' + item.jurisdiction.name + ')'
-                            };
-                        }),
-                        pagination: {
-                            more: data.meta.next !== null
-                        }
-                    };
-                },
-                cache: true
-            }
-        });
-        
         // Handle form submission (client-side)
         $('#meinantragForm').on('submit', function(e) {
             e.preventDefault();
 
-            const publicbodyId = $('#publicbody').val() || '';
-            const subject = $('#subject').val() || '';
-            const body = $('#body').val() || '';
+            const partyId = $('#party').val() || '';
+            const anliegen = $('#anliegen').val() || '';
 
-            let link = 'https://fragdenstaat.de/anfrage-stellen/';
-            if (publicbodyId) {
-                link += `an/${publicbodyId}/`;
+            if (!anliegen.trim()) {
+                alert('Bitte geben Sie ein Anliegen ein.');
+                return;
             }
 
-            const params = new URLSearchParams();
-            if (subject) params.set('subject', subject);
-            if (body) params.set('body', body);
+            // Show loading state
+            const $button = $(this).find('button[type="submit"]');
+            const $btnText = $button.find('.btn-text');
+            const $loading = $button.find('.loading');
+            $button.prop('disabled', true);
+            $btnText.text('Generiere Antrag...');
+            $loading.css('display', 'inline-block');
 
-            if ([...params].length > 0) {
-                link += `?${params.toString()}`;
+            // Prepare form data as URL-encoded
+            const formData = new URLSearchParams();
+            formData.append('anliegen', anliegen);
+            if (partyId) {
+                formData.append('party_id', partyId);
             }
 
-            $('#generatedLinkInput').val(link);
-            $('#result').show();
+            // Send request to generate text
+            fetch('/api/generate-antrag', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Fehler beim Generieren des Antrags');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Fill in the result fields
+                    $('#antragstitel').val(data.title || '');
+                    $('#forderung').val(data.demand || '');
+                    $('#begruendung').val(data.justification || '');
+                    
+                    // Store party name for mail button
+                    $('#resultFields').data('party-name', data.party_name || '');
+                    
+                    // Update mail button text
+                    if (data.party_name) {
+                        $('#mailBtnText').text('Mail an ' + data.party_name + ' senden');
+                    }
+                    
+                    // Hide input fields and show result fields
+                    $('#inputFields').hide();
+                    $('#resultFields').show();
+                } else {
+                    throw new Error(data.error || 'Fehler beim Generieren des Antrags');
+                }
+
+                // Reset button state
+                $button.prop('disabled', false);
+                $btnText.text('Antrag generieren');
+                $loading.hide();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Fehler beim Generieren des Antrags: ' + error.message);
+                
+                // Reset button state
+                $button.prop('disabled', false);
+                $btnText.text('Antrag generieren');
+                $loading.hide();
+            });
         });
 
-        // Copy to clipboard
-        $(document).on('click', '#copyBtn', function() {
-            const link = $('#generatedLinkInput').val();
-            navigator.clipboard.writeText(link).then(function() {
-                const btn = $('#copyBtn');
-                const originalText = btn.text();
-                btn.text('Kopiert!');
-                setTimeout(() => btn.text(originalText), 1500);
+        // Handle back link click
+        $('#backLink').on('click', function(e) {
+            e.preventDefault();
+            $('#resultFields').hide();
+            $('#inputFields').show();
+        });
+
+        // Mail-Kontakte für Fraktionen
+        const partyContacts = {
+            'SPD': 'spd@karlsruhe.de',
+            'GRÜNEN': 'gruene@karlsruhe.de',
+            'CDU': 'cdu@karlsruhe.de',
+            'FDP/FW': 'fdp@karlsruhe.de',
+            'Volt': 'volt@karlsruhe.de',
+            'DIE LINKE': 'dielinke@karlsruhe.de',
+            'KAL': 'kal@karlsruhe.de'
+        };
+
+        // Handle mail button click
+        $('#mailBtn').on('click', function() {
+            const partyName = $('#resultFields').data('party-name') || '';
+            const email = partyContacts[partyName] || '';
+            const subject = encodeURIComponent($('#antragstitel').val() || '');
+            const title = $('#antragstitel').val() || '';
+            const demand = $('#forderung').val() || '';
+            const justification = $('#begruendung').val() || '';
+            
+            // Build email body
+            let body = title + '\n\n';
+            body += 'Der Gemeinderat möge beschließen:\n';
+            body += demand + '\n\n';
+            body += 'Begründung/Sachverhalt\n';
+            body += justification;
+            
+            const bodyEncoded = encodeURIComponent(body);
+            
+            // Open mail client
+            if (email) {
+                window.location.href = `mailto:${email}?subject=${subject}&body=${bodyEncoded}`;
+            } else {
+                alert('Keine E-Mail-Adresse für diese Fraktion hinterlegt.');
+            }
+        });
+
+        // Handle PDF button click
+        $('#pdfBtn').on('click', function() {
+            const title = $('#antragstitel').val() || '';
+            const demand = $('#forderung').val() || '';
+            const justification = $('#begruendung').val() || '';
+            const partyName = $('#resultFields').data('party-name') || '';
+            
+            // Prepare form data
+            const formData = new URLSearchParams();
+            formData.append('title', title);
+            formData.append('demand', demand);
+            formData.append('justification', justification);
+            if (partyName) {
+                formData.append('party_name', partyName);
+            }
+            
+            // Open PDF in new window
+            fetch('/api/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Fehler beim Generieren des PDFs');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Fehler beim Generieren des PDFs: ' + error.message);
+            });
+        });
+
+        // Handle Word button click
+        $('#wordBtn').on('click', function() {
+            const title = $('#antragstitel').val() || '';
+            const demand = $('#forderung').val() || '';
+            const justification = $('#begruendung').val() || '';
+            const partyName = $('#resultFields').data('party-name') || '';
+            
+            // Prepare form data
+            const formData = new URLSearchParams();
+            formData.append('title', title);
+            formData.append('demand', demand);
+            formData.append('justification', justification);
+            if (partyName) {
+                formData.append('party_name', partyName);
+            }
+            
+            // Download Word file
+            fetch('/api/generate-word', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Fehler beim Generieren der Word-Datei');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'antrag.docx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Fehler beim Generieren der Word-Datei: ' + error.message);
             });
         });
     });

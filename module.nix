@@ -16,6 +16,19 @@ in
 
       enable = lib.mkEnableOption "MeinAntrag web app";
 
+      environment = lib.mkOption {
+        type = lib.types.attrsOf lib.types.str;
+        default = { };
+        example = {
+          GOOGLE_GEMINI_API_KEY = "your-api-key-here";
+          MEINANTRAG_BASE_URL = "https://example.com";
+        };
+        description = ''
+          Additional environment variables to pass to the MeinAntrag service.
+          For example, set GOOGLE_GEMINI_API_KEY for Gemini API integration.
+        '';
+      };
+
     };
   };
 
@@ -51,7 +64,7 @@ in
               "PYTHONPATH=${pkgs.meinantrag}/share/meinantrag:${pkgs.meinantrag.pythonPath}"
               "MEINANTRAG_TEMPLATES_DIR=${pkgs.meinantrag}/share/meinantrag/templates"
               "MEINANTRAG_STATIC_DIR=${pkgs.meinantrag}/share/meinantrag/assets"
-            ];
+            ] ++ (lib.mapAttrsToList (name: value: "${name}=${value}") cfg.environment);
 
             settings = {
               "static-map" = "/static=${pkgs.meinantrag}/share/meinantrag/assets";

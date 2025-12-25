@@ -1,7 +1,7 @@
 {
   description = "meinantrag package and service";
 
-  inputs.nixpkgs.url = "nixpkgs/nixos-25.05";
+  inputs.nixpkgs.url = "nixpkgs/nixos-25.11";
 
   outputs = { self, nixpkgs }:
   let
@@ -18,14 +18,21 @@
     overlay = final: prev: {
       meinantrag = with final; python3Packages.buildPythonApplication rec {
         pname = "meinantrag";
-        version = "0.0.1";
+        version = "0.0.2";
         format = "other";
 
         src = self;
 
         dontBuild = true;
 
-        dependencies = with python3Packages; [ falcon requests jinja2 ];
+        dependencies = with python3Packages; [
+          falcon
+          requests
+          jinja2
+          google-generativeai # Dependency for Gemini API
+          reportlab           # Dependency for PDF generation
+          python-docx          # Dependency for Word document generation
+        ];
 
         installPhase = ''
           install -Dm755 ${./meinantrag.py} $out/bin/meinantrag
