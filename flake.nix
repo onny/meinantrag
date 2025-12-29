@@ -31,7 +31,6 @@
           jinja2
           google-generativeai # Dependency for Gemini API
           grpcio              # Required by google-generativeai
-          reportlab           # Dependency for PDF generation
           python-docx          # Dependency for Word document generation
         ];
 

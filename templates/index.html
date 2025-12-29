@@ -69,13 +69,6 @@
                     </svg>
                     <span id="mailBtnText">Mail an Fraktion senden</span>
                 </button>
-                <button type="button" class="btn btn-primary" id="pdfBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf me-2" viewBox="0 0 16 16">
-                        <path d="M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5z"/>
-                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                    </svg>
-                    PDF anzeigen
-                </button>
                 <button type="button" class="btn btn-primary" id="wordBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-word me-2" viewBox="0 0 16 16">
                         <path d="M5.485 6.879a.5.5 0 1 0-.97.242l1.5 6a.5.5 0 0 0 .539.314l1.5-.5a.5.5 0 0 0 .186-.596l-.737-2.945 2.679-3.42a.5.5 0 1 0-.758-.652L6.978 8.616l-1.493-.5z"/>
@@ -215,46 +208,6 @@
             } else {
                 alert('Keine E-Mail-Adresse für diese Fraktion hinterlegt.');
             }
-        });
-
-        // Handle PDF button click
-        $('#pdfBtn').on('click', function() {
-            const title = $('#antragstitel').val() || '';
-            const demand = $('#forderung').val() || '';
-            const justification = $('#begruendung').val() || '';
-            const partyName = $('#resultFields').data('party-name') || '';
-            
-            // Prepare form data
-            const formData = new URLSearchParams();
-            formData.append('title', title);
-            formData.append('demand', demand);
-            formData.append('justification', justification);
-            if (partyName) {
-                formData.append('party_name', partyName);
-            }
-            
-            // Open PDF in new window
-            fetch('/api/generate-pdf', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: formData.toString()
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Fehler beim Generieren des PDFs');
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Fehler beim Generieren des PDFs: ' + error.message);
-            });
         });
 
         // Handle Word button click

@@ -13,11 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 import google.generativeai as genai
 import re
 from io import BytesIO
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import cm
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.enums import TA_LEFT, TA_JUSTIFY
+from datetime import datetime
 try:
 	from docx import Document
 	from docx.shared import Pt, Inches
@@ -84,8 +80,8 @@ class MeinAntragApp(BaseTemplateResource):
 		template = self.jinja_env.get_template('index.html')
 		resp.content_type = 'text/html; charset=utf-8'
 		resp.text = template.render(
-			meta_title='MeinAntrag – Anfragelinks für FragDenStaat',
-			meta_description='Erstelle vorausgefüllte Anfragelinks für FragDenStaat.de, suche Behörden, füge Betreff und Text hinzu und teile den Link.',
+			meta_title='MeinAntrag – Anträge an die Karlsruher Stadtverwaltung',
+			meta_description='Erstelle einfach Vorlagen für Anfragen oder Anträge an die Karlsruher Stadtverwaltung zu deinem persönlichen Thema und schicke diese direkt an eine Stadtratsfraktion!',
 			canonical_url=f"{SITE_BASE_URL}/"
 		)
 
@@ -301,188 +297,120 @@ WICHTIG:
 				'error': str(e)
 			})
 
-class GeneratePDFResource:
-	def _generate_pdf(self, title, demand, justification, party_name=""):
-		"""Generate a PDF that looks like a city council proposal"""
-		buffer = BytesIO()
-		doc = SimpleDocTemplate(buffer, pagesize=A4,
-								rightMargin=2.5*cm, leftMargin=2.5*cm,
-								topMargin=2.5*cm, bottomMargin=2.5*cm)
-		
-		# Container for the 'Flowable' objects
-		story = []
-		
-		# Define styles
-		styles = getSampleStyleSheet()
-		
-		# Custom styles for the document
-		title_style = ParagraphStyle(
-			'CustomTitle',
-			parent=styles['Heading1'],
-			fontSize=16,
-			textColor='black',
-			spaceAfter=30,
-			alignment=TA_LEFT,
-			fontName='Helvetica-Bold'
-		)
-		
-		heading_style = ParagraphStyle(
-			'CustomHeading',
-			parent=styles['Heading2'],
-			fontSize=12,
-			textColor='black',
-			spaceAfter=12,
-			spaceBefore=20,
-			alignment=TA_LEFT,
-			fontName='Helvetica-Bold'
-		)
-		
-		body_style = ParagraphStyle(
-			'CustomBody',
-			parent=styles['Normal'],
-			fontSize=11,
-			textColor='black',
-			spaceAfter=12,
-			alignment=TA_JUSTIFY,
-			fontName='Helvetica'
-		)
-		
-		# Header with party name if provided
-		if party_name:
-			party_para = Paragraph(f"<b>Antrag der {party_name}</b>", body_style)
-			story.append(party_para)
-			story.append(Spacer(1, 0.5*cm))
-		
-		# Title
-		if title:
-			title_para = Paragraph(f"<b>{title}</b>", title_style)
-			story.append(title_para)
-		
-		# Demand section
-		if demand:
-			story.append(Spacer(1, 0.3*cm))
-			demand_heading = Paragraph("<b>Der Gemeinderat möge beschließen:</b>", heading_style)
-			story.append(demand_heading)
-			
-			# Process demand text - replace newlines with proper breaks
-			demand_lines = demand.split('\n')
-			for line in demand_lines:
-				if line.strip():
-					demand_para = Paragraph(line.strip(), body_style)
-					story.append(demand_para)
-		
-		# Justification section
-		if justification:
-			story.append(Spacer(1, 0.5*cm))
-			justification_heading = Paragraph("<b>Begründung/Sachverhalt</b>", heading_style)
-			story.append(justification_heading)
-			
-			# Process justification text
-			justification_lines = justification.split('\n')
-			for line in justification_lines:
-				if line.strip():
-					justification_para = Paragraph(line.strip(), body_style)
-					story.append(justification_para)
-		
-		# Build PDF
-		doc.build(story)
-		buffer.seek(0)
-		return buffer
-	
-	def on_post(self, req, resp):
-		"""Generate PDF from form data"""
-		try:
-			# Get form data
-			title = req.get_param('title', default='') or ''
-			demand = req.get_param('demand', default='') or ''
-			justification = req.get_param('justification', default='') or ''
-			party_name = req.get_param('party_name', default='') or ''
-			
-			# If empty, try to read from stream
-			if not title:
-				try:
-					stream = getattr(req, 'bounded_stream', req.stream)
-					raw_body = stream.read().decode('utf-8')
-					parsed = parse_qs(raw_body)
-					title = parsed.get('title', [''])[0]
-					demand = parsed.get('demand', [''])[0]
-					justification = parsed.get('justification', [''])[0]
-					party_name = parsed.get('party_name', [''])[0]
-				except Exception:
-					pass
-			
-			# Generate PDF
-			pdf_buffer = self._generate_pdf(title, demand, justification, party_name)
-			
-			# Return PDF
-			resp.content_type = 'application/pdf'
-			resp.set_header('Content-Disposition', 'inline; filename="antrag.pdf"')
-			resp.data = pdf_buffer.read()
-			
-		except Exception as e:
-			import traceback
-			traceback.print_exc()
-			resp.status = falcon.HTTP_500
-			resp.content_type = 'application/json'
-			resp.text = json.dumps({
-				'success': False,
-				'error': str(e)
-			})
-
 class GenerateWordResource:
+	def __init__(self):
+		# Get template path
+		script_dir = os.path.dirname(os.path.abspath(__file__))
+		self.template_path = os.path.join(script_dir, 'assets', 'antrag_vorlage.docx')
+		# Fallback if not in assets
+		if not os.path.exists(self.template_path):
+			assets_dir = os.path.join(script_dir, '..', 'assets')
+			self.template_path = os.path.join(assets_dir, 'antrag_vorlage.docx')
+	
 	def _generate_word(self, title, demand, justification, party_name=""):
-		"""Generate a Word document that looks like a city council proposal"""
-		doc = Document()
+		"""Generate a Word document using the template"""
+		# Load template
+		if os.path.exists(self.template_path):
+			doc = Document(self.template_path)
+		else:
+			# Fallback: create new document if template not found
+			doc = Document()
 		
-		# Set default font
-		style = doc.styles['Normal']
-		font = style.font
-		font.name = 'Arial'
-		font.size = Pt(11)
+		# Get current date in DD.MM.YYYY format
+		current_date = datetime.now().strftime("%d.%m.%Y")
 		
-		# Header with party name if provided
-		if party_name:
-			party_para = doc.add_paragraph(f"Antrag der {party_name}")
-			party_para.runs[0].bold = True
-			party_para.runs[0].font.size = Pt(11)
-			doc.add_paragraph()
+		# Combine demand for ANTRAGSTEXT (with heading)
+		antragtext = "Der Gemeinderat möge beschließen:\n" + demand
 		
-		# Title
-		if title:
-			title_para = doc.add_paragraph(title)
-			title_para.runs[0].bold = True
-			title_para.runs[0].font.size = Pt(16)
-			title_para.paragraph_format.space_after = Pt(30)
-		
-		# Demand section
-		if demand:
-			doc.add_paragraph()
-			demand_heading = doc.add_paragraph("Der Gemeinderat möge beschließen:")
-			demand_heading.runs[0].bold = True
-			demand_heading.runs[0].font.size = Pt(12)
-			demand_heading.paragraph_format.space_before = Pt(20)
-			demand_heading.paragraph_format.space_after = Pt(12)
+		# Replace placeholders in all paragraphs
+		for paragraph in doc.paragraphs:
+			full_text = paragraph.text
+			if not full_text:
+				continue
 			
-			# Process demand text
-			demand_lines = demand.split('\n')
-			for line in demand_lines:
-				if line.strip():
-					doc.add_paragraph(line.strip())
-		
-		# Justification section
-		if justification:
-			doc.add_paragraph()
-			justification_heading = doc.add_paragraph("Begründung/Sachverhalt")
-			justification_heading.runs[0].bold = True
-			justification_heading.runs[0].font.size = Pt(12)
-			justification_heading.paragraph_format.space_before = Pt(20)
-			justification_heading.paragraph_format.space_after = Pt(12)
+			# Replace FRAKTION
+			if party_name and 'FRAKTION' in full_text:
+				for run in paragraph.runs:
+					if 'FRAKTION' in run.text:
+						run.text = run.text.replace('FRAKTION', party_name)
 			
-			# Process justification text
-			justification_lines = justification.split('\n')
-			for line in justification_lines:
-				if line.strip():
-					doc.add_paragraph(line.strip())
+			# Replace XX.XX.XXXX with current date
+			if 'XX.XX.XXXX' in full_text:
+				for run in paragraph.runs:
+					if 'XX.XX.XXXX' in run.text:
+						run.text = run.text.replace('XX.XX.XXXX', current_date)
+			
+			# Replace ANTRAGSTITEL (bold)
+			if 'ANTRAGSTITEL' in full_text:
+				paragraph.clear()
+				run = paragraph.add_run(title)
+				run.bold = True
+			
+			# Replace ANTRAGSTEXT
+			if 'ANTRAGSTEXT' in full_text:
+				paragraph.clear()
+				lines = antragtext.split('\n')
+				for i, line in enumerate(lines):
+					if line.strip():
+						run = paragraph.add_run(line.strip())
+						if i == 0:  # First line (heading) should be bold
+							run.bold = True
+						if i < len(lines) - 1:
+							paragraph.add_run('\n')
+			
+			# Replace BEGRÜNDUNGSTEXT
+			if 'BEGRÜNDUNGSTEXT' in full_text:
+				paragraph.clear()
+				lines = justification.split('\n')
+				for i, line in enumerate(lines):
+					if line.strip():
+						paragraph.add_run(line.strip())
+						if i < len(lines) - 1:
+							paragraph.add_run('\n')
+		
+		# Also check tables for placeholders
+		for table in doc.tables:
+			for row in table.rows:
+				for cell in row.cells:
+					for paragraph in cell.paragraphs:
+						full_text = paragraph.text
+						if not full_text:
+							continue
+						
+						if party_name and 'FRAKTION' in full_text:
+							for run in paragraph.runs:
+								if 'FRAKTION' in run.text:
+									run.text = run.text.replace('FRAKTION', party_name)
+						
+						if 'XX.XX.XXXX' in full_text:
+							for run in paragraph.runs:
+								if 'XX.XX.XXXX' in run.text:
+									run.text = run.text.replace('XX.XX.XXXX', current_date)
+						
+						if 'ANTRAGSTITEL' in full_text:
+							paragraph.clear()
+							run = paragraph.add_run(title)
+							run.bold = True
+						
+						if 'ANTRAGSTEXT' in full_text:
+							paragraph.clear()
+							lines = antragtext.split('\n')
+							for i, line in enumerate(lines):
+								if line.strip():
+									run = paragraph.add_run(line.strip())
+									if i == 0:
+										run.bold = True
+									if i < len(lines) - 1:
+										paragraph.add_run('\n')
+						
+						if 'BEGRÜNDUNGSTEXT' in full_text:
+							paragraph.clear()
+							lines = justification.split('\n')
+							for i, line in enumerate(lines):
+								if line.strip():
+									paragraph.add_run(line.strip())
+									if i < len(lines) - 1:
+										paragraph.add_run('\n')
 		
 		# Save to buffer
 		buffer = BytesIO()
@@ -583,7 +511,6 @@ meinantrag = MeinAntragApp()
 impressum = ImpressumResource()
 datenschutz = DatenschutzResource()
 generate_antrag = GenerateAntragResource()
-generate_pdf = GeneratePDFResource()
 generate_word = GenerateWordResource()
 robots = RobotsResource()
 sitemap = SitemapResource()
@@ -592,7 +519,6 @@ app.add_route('/', meinantrag)
 app.add_route('/impressum', impressum)
 app.add_route('/datenschutz', datenschutz)
 app.add_route('/api/generate-antrag', generate_antrag)
-app.add_route('/api/generate-pdf', generate_pdf)
 app.add_route('/api/generate-word', generate_word)
 app.add_route('/robots.txt', robots)
 app.add_route('/sitemap.xml', sitemap)
