@@ -258,7 +258,7 @@ Der Antrag soll im sachlichen, offiziellen Ton einer Fraktion verfasst sein - KE
 
 Struktur:
 - Die erste Zeile ist der Antragstitel. Der Titel soll PRÄGNANT, EINFACH und EINPRÄGSAM sein - maximal 8-10 Wörter. Vermeide komplizierte Formulierungen, technische Fachbegriffe oder zu lange Titel. Der Titel soll eine gute Außenwirkung haben und das Anliegen klar und verständlich kommunizieren. Beispiele für gute Titel: "Nachtabsenkung der öffentlichen Straßenbeleuchtung", "Vielfalt in Bewegung – Kulturelle Begleitmaßnahmen World Games 2029", "Prüfung digitaler Zahlungsdienstleister und WERO-Alternative"
-- Der zweite Absatz ist der Forderungsteil ("Der Gemeinderat möge beschließen:"). Hier können nach einem kurzen Satz auch Stichpunkte verwendet werden, wenn dies sinnvoll ist.
+- Der zweite Absatz ist der Forderungsteil. Hier können nach einem kurzen Satz auch Stichpunkte verwendet werden, wenn dies sinnvoll ist.
 - Der letzte Teil ist Begründung/Sachverhalt (ohne diesen Titel im Text)
 
 WICHTIG: 
@@ -277,6 +277,41 @@ WICHTIG:
 			# Parse the response
 			parsed = self._parse_gemini_response(generated_text)
 			
+			# Generate email text
+			email_prompt = f"""Erstelle einen kurzen, höflichen E-Mail-Text in der ERSTEN PERSON (ich/wir) für eine Fraktion an eine andere Fraktion. 
+Die E-Mail soll:
+- Mit "Guten Tag," beginnen
+- Das Anliegen kurz in der ersten Person erklären (basierend auf: {anliegen})
+- Erwähnen, dass eine Antragsvorlage im Anhang beigefügt ist
+- Mit "Mit freundlichen Grüßen," enden
+
+Der Text soll sachlich, höflich und kurz sein (2-3 Sätze zwischen Begrüßung und Grußformel). Verwende KEINE Markdown-Formatierung. Schreibe in der ERSTEN PERSON (z.B. "ich möchte", "wir bitten", "ich habe").
+
+Anliegen: {anliegen}
+"""
+			
+			email_response = self.model.generate_content(email_prompt)
+			email_text = self._remove_markdown(email_response.text)
+			
+			# Ensure proper format - clean up and ensure structure
+			email_text = email_text.strip()
+			
+			# Ensure it starts with "Guten Tag,"
+			if not email_text.startswith('Guten Tag'):
+				# Remove any existing greeting
+				email_text = re.sub(r'^(Guten Tag[,\s]*|Hallo[,\s]*|Sehr geehrte[^,]*,\s*)', '', email_text, flags=re.IGNORECASE)
+				email_text = 'Guten Tag,\n\n' + email_text.strip()
+			
+			# Ensure it ends with "Mit freundlichen Grüßen,"
+			if 'Mit freundlichen Grüßen' not in email_text:
+				email_text += '\n\nMit freundlichen Grüßen,'
+			else:
+				# Make sure it's properly formatted
+				if not email_text.rstrip().endswith('Mit freundlichen Grüßen,'):
+					# Remove any existing closing and add proper one
+					email_text = re.sub(r'\s*Mit freundlichen Grüßen[,\s]*$', '', email_text, flags=re.IGNORECASE)
+					email_text = email_text.rstrip() + '\n\nMit freundlichen Grüßen,'
+			
 			# Return JSON with the generated text parts
 			resp.content_type = 'application/json'
 			resp.text = json.dumps({
@@ -284,6 +319,7 @@ WICHTIG:
 				'title': parsed['title'],
 				'demand': parsed['demand'],
 				'justification': parsed['justification'],
+				'email_body': email_text,
 				'party_name': party_id if party_id else ""
 			})
 			
@@ -319,8 +355,8 @@ class GenerateWordResource:
 		# Get current date in DD.MM.YYYY format
 		current_date = datetime.now().strftime("%d.%m.%Y")
 		
-		# Combine demand for ANTRAGSTEXT (with heading)
-		antragtext = "Der Gemeinderat möge beschließen:\n" + demand
+		# Use demand directly without heading
+		antragtext = demand
 		
 		# Replace placeholders in all paragraphs
 		for paragraph in doc.paragraphs:
@@ -329,7 +365,7 @@ class GenerateWordResource:
 				continue
 			
 			# Replace FRAKTION
-			if party_name and 'FRAKTION' in full_text:
+			if 'FRAKTION' in full_text:
 				for run in paragraph.runs:
 					if 'FRAKTION' in run.text:
 						run.text = run.text.replace('FRAKTION', party_name)
@@ -352,9 +388,7 @@ class GenerateWordResource:
 				lines = antragtext.split('\n')
 				for i, line in enumerate(lines):
 					if line.strip():
-						run = paragraph.add_run(line.strip())
-						if i == 0:  # First line (heading) should be bold
-							run.bold = True
+						paragraph.add_run(line.strip())
 						if i < len(lines) - 1:
 							paragraph.add_run('\n')
 			
@@ -367,6 +401,43 @@ class GenerateWordResource:
 						paragraph.add_run(line.strip())
 						if i < len(lines) - 1:
 							paragraph.add_run('\n')
+		
+		# Check text boxes (shapes) for placeholders
+		# Text boxes are stored in the document's part relationships
+		try:
+			# Access document part to search for text boxes
+			document_part = doc.part
+			from docx.oxml.ns import qn
+			
+			# Search for FRAKTION in text boxes
+			# Text boxes are in w:txbxContent elements within w:p (paragraphs)
+			# We need to search the entire XML tree
+			def replace_in_element(element, search_text, replace_text):
+				"""Recursively replace text in XML elements"""
+				if element.text and search_text in element.text:
+					element.text = element.text.replace(search_text, replace_text)
+				if element.tail and search_text in element.tail:
+					element.tail = element.tail.replace(search_text, replace_text)
+				for child in element:
+					replace_in_element(child, search_text, replace_text)
+			
+			# Search in main document body
+			if party_name:
+				replace_in_element(document_part.element, 'FRAKTION', party_name)
+			
+			# Also search in header and footer parts
+			for rel in document_part.rels.values():
+				if 'header' in rel.target_ref or 'footer' in rel.target_ref:
+					try:
+						header_footer_part = rel.target_part
+						if party_name:
+							replace_in_element(header_footer_part.element, 'FRAKTION', party_name)
+					except Exception:
+						pass
+		except Exception as e:
+			# If text box access fails, continue with other replacements
+			print(f"Warning: Could not replace in text boxes: {e}")
+			pass
 		
 		# Also check tables for placeholders
 		for table in doc.tables:
@@ -397,9 +468,7 @@ class GenerateWordResource:
 							lines = antragtext.split('\n')
 							for i, line in enumerate(lines):
 								if line.strip():
-									run = paragraph.add_run(line.strip())
-									if i == 0:
-										run.bold = True
+									paragraph.add_run(line.strip())
 									if i < len(lines) - 1:
 										paragraph.add_run('\n')
 						

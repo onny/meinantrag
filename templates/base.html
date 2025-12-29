@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MeinAntrag{% endblock %}</title>
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link type="text/css" href="/static/css/pages.css" media="all" rel="stylesheet">
     <link href="/static/css/select2.min.css" rel="stylesheet">
     <link href="/static/css/select2-bootstrap-5-theme.min.css" rel="stylesheet">
 
@@ -30,61 +30,211 @@
 
     {% block meta_extra %}{% endblock %}
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .main-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 3rem;
-            margin: 2rem auto;
-            max-width: 800px;
-        }
-        .title {
-            color: #2c3e50;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-        .description {
-            color: #7f8c8d;
-            font-size: 1.1rem;
-            margin-bottom: 2.5rem;
-            line-height: 1.6;
-        }
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-            border-radius: 15px;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        .result-link {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-top: 1rem;
-            word-break: break-all;
-        }
+        h2 {
+	    max-width: 700px !important;
+	}
+	select, textarea, input {
+	    max-width: 700px;
+	    margin-bottom: 1rem;
+	}
+	
+	.tutorial-list li {
+	    margin-bottom: 30px;
+	}
+	
+	.tutorial-list li h4 {
+	    margin-bottom: 10px;
+	}
+	
+	.tutorial-list li p {
+	    margin: 10px 0;
+	}
+	
+	/* Responsive design for mobile devices */
+	@media (max-width: 768px) {
+	    h2 {
+		max-width: 100% !important;
+		font-size: 1.2rem;
+		padding: 0 1rem;
+	    }
+	    
+	    select, textarea, input {
+		max-width: 100%;
+		width: 100%;
+		margin-bottom: 1rem;
+	    }
+	    
+	    .tutorial-list li {
+		padding: 1rem;
+	    }
+	    
+	    .tutorial-list li h4 {
+		font-size: 1.1rem;
+		margin-bottom: 0.5rem;
+	    }
+	    
+	    .tutorial-list li p {
+		font-size: 0.9rem;
+		margin-bottom: 0.5rem;
+	    }
+	    
+	    .form-control, .form-select {
+		font-size: 16px; /* Prevents zoom on iOS */
+		padding: 0.75rem;
+	    }
+	    
+	    textarea.form-control {
+		min-height: 150px;
+	    }
+	    
+	    .btn-primary {
+		width: 100%;
+		padding: 0.75rem;
+		font-size: 16px;
+		margin-bottom: 0.5rem;
+		box-sizing: border-box;
+	    }
+	    
+	    #resultFields .btn-primary {
+		margin-right: 0;
+		margin-left: 0;
+		display: block;
+		width: 100%;
+		margin-bottom: 0.5rem;
+	    }
+	    
+	    #resultFields .btn-primary:last-child {
+		margin-bottom: 0;
+	    }
+	    
+	    .tutorial-list li form {
+		width: 100%;
+	    }
+	    
+	    .tutorial-list li form > div {
+		width: 100%;
+	    }
+	    
+	    /* Fix wrapper width on mobile */
+	    .wrapper {
+		width: 100% !important;
+		max-width: 100%;
+	    }
+	    
+	    .page-footer {
+		width: 100% !important;
+		padding: 20px 1rem;
+		margin: 40px auto 0;
+		position: relative;
+	    }
+	    
+	    .page-footer .site-footer-links {
+		display: block;
+		width: 100%;
+		text-align: center;
+		margin: 0.5rem 0;
+		padding: 0;
+		font-size: 0.85rem;
+	    }
+	    
+	    .page-footer .site-footer-links.right {
+		float: none;
+		text-align: center;
+		margin-bottom: 1rem;
+	    }
+	    
+	    .page-footer .site-footer-links li {
+		display: inline-block;
+		margin: 0 0.5rem;
+		vertical-align: middle;
+	    }
+	    
+	    .tutorial-list {
+		margin-top: 40px;
+	    }
+	    
+	    .tutorial-list p {
+		margin: 15px 20px !important;
+	    }
+	    
+	    .hero-spot {
+		padding: 2rem 1rem;
+	    }
+	    
+	    .hero-spot h1 {
+		font-size: 2rem;
+		margin-top: 1rem;
+	    }
+	    
+	    .hero-spot h2 {
+		font-size: 1rem;
+		padding: 0 1rem;
+		margin-bottom: 2rem;
+	    }
+	    
+	    .tutorial {
+		padding: 1rem 0;
+	    }
+	    
+	    .wrapper {
+		padding: 0 1rem;
+		max-width: 100%;
+	    }
+	    
+	    .tutorial-list li {
+		margin-bottom: 2rem;
+		padding: 1.5rem 1rem;
+	    }
+	    
+	    .tutorial-list li:after {
+		left: 50%;
+		transform: translateX(-50%);
+		top: -29px;
+	    }
+	}
+	
+	@media (max-width: 480px) {
+	    .hero-spot h1 {
+		font-size: 1.5rem;
+	    }
+	    
+	    .hero-spot h2 {
+		font-size: 0.9rem;
+	    }
+	    
+	    .tutorial-list li h4 {
+		font-size: 1rem;
+	    }
+	    
+	    .page-footer .site-footer-links {
+		display: block;
+		margin: 0.5rem 0;
+		text-align: center;
+	    }
+	    
+	    .page-footer .site-footer-links.right {
+		float: none;
+		text-align: center;
+	    }
+	    
+	    .page-footer .site-footer-links li {
+		display: block;
+		margin: 0.5rem 0;
+	    }
+	    
+	    .tutorial-list li {
+		padding: 1rem 0.5rem;
+	    }
+	    
+	    .tutorial-list li h4 {
+		font-size: 0.95rem;
+	    }
+	    
+	    .tutorial-list li p {
+		font-size: 0.85rem;
+		margin: 0.5rem 0;
+	    }
+	}
         /* Ensure Select2 scales properly */
         .select2-container {
             width: 100% !important;
@@ -100,52 +250,58 @@
         .select2-container .select2-selection__arrow {
             height: 100% !important;
         }
-        /* Mobile adjustments */
-        @media (max-width: 576px) {
-            .main-container {
-                padding: 1.25rem;
-                margin: 1rem auto 4rem auto;
-            }
-            .title {
-                font-size: 2rem;
-            }
-            .description {
-                font-size: 1rem;
-            }
+        .loading {
+            display: none;
+        }
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: #4078c0;
+            box-shadow: 0 0 0 2px rgba(64, 120, 192, 0.2);
+        }
+        textarea.form-control {
+            min-height: 200px;
+            resize: vertical;
+        }
+        .btn-primary {
+            background-color: #4078c0;
+            border-color: #4078c0;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 3px;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background-color: #3669a3;
+            border-color: #3669a3;
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         .loading {
             display: none;
         }
-        .footer {
-            background: transparent;
-            margin-top: 3rem;
-        }
-        .footer-links a {
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
-        }
-        .footer-links a:hover {
-            color: #667eea !important;
-        }
-        .footer-text {
-            font-size: 0.8rem;
-        }
-        .footer-text a:hover {
-            color: #667eea !important;
-        }
-        .footer-text a {
-            text-decoration: underline;
-        }
-        .footer-text {
-            font-size: 0.8rem;
-            margin-bottom: 2rem;
+        .loading.active {
+            display: inline-block;
+            margin-left: 0.5rem;
         }
         .legal-content {
             text-align: left;
             line-height: 1.6;
         }
         .legal-content h2 {
-            color: #2c3e50;
             margin-top: 2rem;
             margin-bottom: 1rem;
         }
@@ -155,42 +311,25 @@
         .legal-content ul {
             margin-bottom: 1rem;
         }
-        .main-container {
-            margin-bottom: 4rem;
-        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <div class="container">
-        <div class="main-container">
-            {% block content %}{% endblock %}
-        </div>
-        
-        <!-- Footer -->
-        <footer class="footer mt-5 pt-4">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12 text-center">
-                        <div class="footer-links mb-2">
-                            <a href="/impressum" class="text-muted text-decoration-none me-3">Impressum</a>
-                            <a href="/datenschutz" class="text-muted text-decoration-none me-3">Datenschutz</a>
-                            <a href="https://git.project-insanity.org/onny/MeinAntrag" class="text-muted text-decoration-none" target="_blank">Source</a>
-                        </div>
-                        <div class="footer-text">
-                            <small class="text-muted">
-                                Projekt von <a href="https://project-insanity.org" class="text-muted text-decoration-none" target="_blank">Project-Insanity.org</a>, 
-                                follow us on <a href="https://social.project-insanity.org/@pi_crew" class="text-muted text-decoration-none" target="_blank">Mastodon</a> :)
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </div>
+<body class="home">
+    {% block content %}{% endblock %}
+    
+    <footer class="page-footer">
+        <ul class="site-footer-links right">
+            <li><a href="/impressum">Impressum</a></li>
+            <li><a href="/datenschutz">Datenschutz</a></li>
+            <li><a href="https://git.project-insanity.org/onny/MeinAntrag" target="_blank">Source</a></li>
+        </ul>
+        <ul class="site-footer-links">
+            <li>&copy; 2025 <span>Project-Insanity.org</span></li>
+            <li><a href="https://social.project-insanity.org/@pi_crew" target="_blank">Mastodon</a></li>
+        </ul>
+    </footer>
 
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/pages-jquery.js"></script>
     <script src="/static/js/select2.min.js"></script>
     
     {% block extra_js %}{% endblock %}

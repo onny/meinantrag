@@ -3,83 +3,90 @@
 {% block title %}MeinAntrag{% endblock %}
 
 {% block content %}
-<div class="text-center">
-    <h1 class="title display-4">MeinAntrag</h1>
-    <p class="description">
-        Erstelle einfach Vorlagen für Anfragen oder Anträge an die Karlsruher Stadtverwaltung
-        zu deinem persönlichen Thema und schicke diese direkt an eine Stadtratsfraktion!
-    </p>
-    
-    <form id="meinantragForm" class="text-start">
-        <div id="inputFields">
-            <div class="mb-4">
-                <label for="party" class="form-label fw-bold">Fraktion</label>
-                <select class="form-select" id="party" name="party_id" required>
-                    <option value="">Fraktion auswählen...</option>
-                    <option value="SPD">SPD</option>
-                    <option value="GRÜNEN">GRÜNEN</option>
-                    <option value="CDU">CDU</option>
-                    <option value="FDP/FW">FDP/FW</option>
-                    <option value="Volt">Volt</option>
-                    <option value="DIE LINKE">DIE LINKE</option>
-                    <option value="KAL">KAL</option>
-                </select>
+<section id="hero-spot" class="hero-spot">
+    <h1>MeinAntrag</h1>
+    <h2>Erstelle einfach Vorlagen für Anfragen oder Anträge an die Karlsruher Stadtverwaltung zu deinem persönlichen Thema und schicke diese direkt an eine Stadtratsfraktion!</h2>
+</section>
+
+<section id="tutorial" class="tutorial">
+
+  <ul id="project-site" class="tutorial-list wrapper active">
+    <li class="question">
+
+        <form id="meinantragForm">
+            <div id="inputFields">
+                <li>
+                    <h4>Fraktion auswählen</h4>
+                    <p>Wähle die Fraktion, an die der Antrag gerichtet ist:</p>
+                    <select class="form-select" id="party" name="party_id" required>
+                        <option value="">Fraktion auswählen...</option>
+                        <option value="SPD">SPD</option>
+                        <option value="GRÜNEN">GRÜNEN</option>
+                        <option value="CDU">CDU</option>
+                        <option value="FDP/FW">FDP/FW</option>
+                        <option value="Volt">Volt</option>
+                        <option value="DIE LINKE">DIE LINKE</option>
+                        <option value="KAL">KAL</option>
+                    </select>
+                </li>
+                
+                <li>
+                    <h4>Dein Anliegen beschreiben</h4>
+                    <p>Beschreibe hier, welche Anfrage oder Antrag du an die Stadtverwaltung stellen möchtest:</p>
+                    <textarea class="form-control" id="anliegen" name="anliegen" rows="5" required></textarea>
+                </li>
+                
+                <li>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-text">Antrag generieren</span>
+                        <span class="loading" role="status" style="display: none;">...</span>
+                    </button>
+                </li>
             </div>
             
-            <div class="mb-4">
-                <label for="anliegen" class="form-label fw-bold">Mein Anliegen:</label>
-                <textarea class="form-control" id="anliegen" name="anliegen" rows="5" 
-                          placeholder="Beschreibe hier, welche Anfrage oder Antrag du an die Stadtverwaltung stellen möchtest ..." required></textarea>
+            <div id="resultFields" style="display: none;">
+                <li>
+                    <p><a href="#" id="backLink">← Zurück zum Formular</a></p>
+		    <br><br>
+                </li>
+                
+                <li>
+                    <h4>Antragstitel</h4>
+                    <p></p>
+                    <input type="text" class="form-control" id="antragstitel" name="antragstitel">
+                </li>
+                
+                <li>
+                    <h4>Forderung</h4>
+                    <p></p>
+                    <textarea class="form-control" id="forderung" name="forderung" rows="5"></textarea>
+                </li>
+                
+                <li>
+                    <h4>Begründung/Sachverhalt</h4>
+                    <p></p>
+                    <textarea class="form-control" id="begruendung" name="begruendung" rows="8"></textarea>
+                </li>
+                
+                <li>
+                    <h4>Aktionen</h4>
+                    <p>Du kannst den Antrag jetzt per E-Mail senden oder als Word-Datei herunterladen:</p>
+                    <button type="button" class="btn btn-primary" id="mailBtn">
+                        <span id="mailBtnText">Mail an Fraktion senden</span>
+                    </button>
+                    <button type="button" class="btn btn-primary" id="wordBtn">
+                        Word-Datei herunterladen
+                    </button>
+                </li>
             </div>
-            
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <span class="btn-text">Antrag generieren</span>
-                    <span class="loading spinner-border spinner-border-sm ms-2" role="status"></span>
-                </button>
-            </div>
-        </div>
-        
-        <div id="resultFields" class="text-start" style="display: none;">
-            <div class="mb-3">
-                <a href="#" id="backLink" class="text-decoration-none">
-                    <span>← Zurück</span>
-                </a>
-            </div>
-            
-            <div class="mb-4">
-                <label for="antragstitel" class="form-label fw-bold">Antragstitel</label>
-                <input type="text" class="form-control" id="antragstitel" name="antragstitel">
-            </div>
-            
-            <div class="mb-4">
-                <label for="forderung" class="form-label fw-bold">Forderung</label>
-                <textarea class="form-control" id="forderung" name="forderung" rows="5"></textarea>
-            </div>
-            
-            <div class="mb-4">
-                <label for="begruendung" class="form-label fw-bold">Begründung/Sachverhalt</label>
-                <textarea class="form-control" id="begruendung" name="begruendung" rows="8"></textarea>
-            </div>
-            
-            <div class="mb-4 d-flex gap-2 flex-wrap justify-content-center">
-                <button type="button" class="btn btn-primary" id="mailBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope me-2" viewBox="0 0 16 16">
-                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
-                    </svg>
-                    <span id="mailBtnText">Mail an Fraktion senden</span>
-                </button>
-                <button type="button" class="btn btn-primary" id="wordBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-word me-2" viewBox="0 0 16 16">
-                        <path d="M5.485 6.879a.5.5 0 1 0-.97.242l1.5 6a.5.5 0 0 0 .539.314l1.5-.5a.5.5 0 0 0 .186-.596l-.737-2.945 2.679-3.42a.5.5 0 1 0-.758-.652L6.978 8.616l-1.493-.5z"/>
-                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                    </svg>
-                    Word-Datei herunterladen
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
+        </form>
+
+
+      </p>
+    </li>
+  </ul>
+
+</section>
 {% endblock %}
 
 {% block extra_js %}
@@ -102,8 +109,8 @@
             const $btnText = $button.find('.btn-text');
             const $loading = $button.find('.loading');
             $button.prop('disabled', true);
-            $btnText.text('Generiere Antrag...');
-            $loading.css('display', 'inline-block');
+            $btnText.text('Generiere Antrag');
+            $loading.css('display', 'inline');
 
             // Prepare form data as URL-encoded
             const formData = new URLSearchParams();
@@ -135,8 +142,9 @@
                     $('#forderung').val(data.demand || '');
                     $('#begruendung').val(data.justification || '');
                     
-                    // Store party name for mail button
+                    // Store party name and email body for mail button
                     $('#resultFields').data('party-name', data.party_name || '');
+                    $('#resultFields').data('email-body', data.email_body || '');
                     
                     // Update mail button text
                     if (data.party_name) {
@@ -153,7 +161,7 @@
                 // Reset button state
                 $button.prop('disabled', false);
                 $btnText.text('Antrag generieren');
-                $loading.hide();
+                $loading.css('display', 'none');
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -162,7 +170,7 @@
                 // Reset button state
                 $button.prop('disabled', false);
                 $btnText.text('Antrag generieren');
-                $loading.hide();
+                $loading.css('display', 'none');
             });
         });
 
@@ -189,18 +197,9 @@
             const partyName = $('#resultFields').data('party-name') || '';
             const email = partyContacts[partyName] || '';
             const subject = encodeURIComponent($('#antragstitel').val() || '');
-            const title = $('#antragstitel').val() || '';
-            const demand = $('#forderung').val() || '';
-            const justification = $('#begruendung').val() || '';
+            const emailBody = $('#resultFields').data('email-body') || '';
             
-            // Build email body
-            let body = title + '\n\n';
-            body += 'Der Gemeinderat möge beschließen:\n';
-            body += demand + '\n\n';
-            body += 'Begründung/Sachverhalt\n';
-            body += justification;
-            
-            const bodyEncoded = encodeURIComponent(body);
+            const bodyEncoded = encodeURIComponent(emailBody);
             
             // Open mail client
             if (email) {
@@ -209,6 +208,38 @@
                 alert('Keine E-Mail-Adresse für diese Fraktion hinterlegt.');
             }
         });
+
+        // Function to create a valid filename from title
+        function createFilename(title) {
+            if (!title || !title.trim()) {
+                return 'antrag.docx';
+            }
+            
+            // Remove or replace special characters
+            let filename = title
+                .trim()
+                .toLowerCase()
+                .replace(/[ä]/g, 'ae')
+                .replace(/[ö]/g, 'oe')
+                .replace(/[ü]/g, 'ue')
+                .replace(/[ß]/g, 'ss')
+                .replace(/[^a-z0-9\s-]/g, '') // Remove special chars except spaces and hyphens
+                .replace(/\s+/g, '_') // Replace spaces with underscores
+                .replace(/_+/g, '_') // Replace multiple underscores with single
+                .replace(/^_+|_+$/g, ''); // Remove leading/trailing underscores
+            
+            // Limit length to 100 characters
+            if (filename.length > 100) {
+                filename = filename.substring(0, 100);
+            }
+            
+            // If empty after cleaning, use default
+            if (!filename) {
+                return 'antrag.docx';
+            }
+            
+            return filename + '.docx';
+        }
 
         // Handle Word button click
         $('#wordBtn').on('click', function() {
@@ -225,6 +256,9 @@
             if (partyName) {
                 formData.append('party_name', partyName);
             }
+            
+            // Generate filename from title
+            const filename = createFilename(title);
             
             // Download Word file
             fetch('/api/generate-word', {
@@ -244,7 +278,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'antrag.docx';
+                a.download = filename;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
