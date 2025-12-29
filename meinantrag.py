@@ -123,7 +123,7 @@ class GenerateAntragResource:
 		api_key = os.environ.get('GOOGLE_GEMINI_API_KEY')
 		if api_key:
 			genai.configure(api_key=api_key)
-			self.model = genai.GenerativeModel('gemini-flash-latest')
+			self.model = genai.GenerativeModel('gemini-3-pro-preview')
 		else:
 			self.model = None
 	
@@ -258,14 +258,12 @@ Der Antrag soll im sachlichen, offiziellen Ton einer Fraktion verfasst sein - KE
 
 Struktur:
 - Die erste Zeile ist der Antragstitel. Der Titel soll PRÄGNANT, EINFACH und EINPRÄGSAM sein - maximal 8-10 Wörter. Vermeide komplizierte Formulierungen, technische Fachbegriffe oder zu lange Titel. Der Titel soll eine gute Außenwirkung haben und das Anliegen klar und verständlich kommunizieren. Beispiele für gute Titel: "Nachtabsenkung der öffentlichen Straßenbeleuchtung", "Vielfalt in Bewegung – Kulturelle Begleitmaßnahmen World Games 2029", "Prüfung digitaler Zahlungsdienstleister und WERO-Alternative"
-- Der zweite Absatz ist der Forderungsteil. Hier können nach einem kurzen Satz auch Stichpunkte verwendet werden, wenn dies sinnvoll ist.
+- Der zweite Absatz ist der Forderungsteil. Je nachdem: Entweder Sätze und oder Liste von Forderungen.
 - Der letzte Teil ist Begründung/Sachverhalt (ohne diesen Titel im Text)
 
 WICHTIG: 
-- Verwende KEINE Markdown-Formatierung. Keine **fett**, keine *kursiv*, keine /Überschriften, keine # Hashtags, keine Links oder andere Formatierung. 
-- Schreibe nur reinen Text ohne jegliche Markdown-Syntax.
+- Reinen Text, verwende KEINE Markdown-Formatierung oder sonstige Formatierungen, ausgenommen Listen und Aufzählungen.
 - Sachlicher, offizieller Ton einer Fraktion, keine persönlichen Formulierungen.
-- Der Antragstitel muss prägnant, einfach verständlich und einprägsam sein - keine komplizierten Formulierungen!
 
 """
 			prompt += anliegen
@@ -278,16 +276,14 @@ WICHTIG:
 			parsed = self._parse_gemini_response(generated_text)
 			
 			# Generate email text
-			email_prompt = f"""Erstelle einen kurzen, höflichen E-Mail-Text in der ERSTEN PERSON (ich/wir) für eine Fraktion an eine andere Fraktion. 
+			email_prompt = f"""Erstelle einen kurzen, höflichen E-Mail-Text in der ERSTEN PERSON (persönlich, ich-rede) an eine Fraktion. 
 Die E-Mail soll:
 - Mit "Guten Tag," beginnen
-- Das Anliegen kurz in der ersten Person erklären (basierend auf: {anliegen})
+- Das Anliegen kurz erklären (basierend auf: {anliegen})
 - Erwähnen, dass eine Antragsvorlage im Anhang beigefügt ist
 - Mit "Mit freundlichen Grüßen," enden
-
-Der Text soll sachlich, höflich und kurz sein (2-3 Sätze zwischen Begrüßung und Grußformel). Verwende KEINE Markdown-Formatierung. Schreibe in der ERSTEN PERSON (z.B. "ich möchte", "wir bitten", "ich habe").
-
-Anliegen: {anliegen}
+- Verwende KEINE Markdown-Formatierung
+- Schreibe keinen Betreff-Entwurf dazu
 """
 			
 			email_response = self.model.generate_content(email_prompt)
@@ -295,23 +291,7 @@ Anliegen: {anliegen}
 			
 			# Ensure proper format - clean up and ensure structure
 			email_text = email_text.strip()
-			
-			# Ensure it starts with "Guten Tag,"
-			if not email_text.startswith('Guten Tag'):
-				# Remove any existing greeting
-				email_text = re.sub(r'^(Guten Tag[,\s]*|Hallo[,\s]*|Sehr geehrte[^,]*,\s*)', '', email_text, flags=re.IGNORECASE)
-				email_text = 'Guten Tag,\n\n' + email_text.strip()
-			
-			# Ensure it ends with "Mit freundlichen Grüßen,"
-			if 'Mit freundlichen Grüßen' not in email_text:
-				email_text += '\n\nMit freundlichen Grüßen,'
-			else:
-				# Make sure it's properly formatted
-				if not email_text.rstrip().endswith('Mit freundlichen Grüßen,'):
-					# Remove any existing closing and add proper one
-					email_text = re.sub(r'\s*Mit freundlichen Grüßen[,\s]*$', '', email_text, flags=re.IGNORECASE)
-					email_text = email_text.rstrip() + '\n\nMit freundlichen Grüßen,'
-			
+				
 			# Return JSON with the generated text parts
 			resp.content_type = 'application/json'
 			resp.text = json.dumps({
