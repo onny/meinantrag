@@ -279,11 +279,13 @@ WICHTIG:
 			email_prompt = f"""Erstelle einen kurzen, höflichen E-Mail-Text in der ERSTEN PERSON (persönlich, ich-rede) an eine Fraktion. 
 Die E-Mail soll:
 - Mit "Guten Tag," beginnen
-- Das Anliegen kurz erklären (basierend auf: {anliegen})
+- Das Anliegen kurz erklären und prägnant
 - Erwähnen, dass eine Antragsvorlage im Anhang beigefügt ist
 - Mit "Mit freundlichen Grüßen," enden
 - Verwende KEINE Markdown-Formatierung
 - Schreibe keinen Betreff-Entwurf dazu
+
+Anliegen: {anliegen}
 """
 			
 			email_response = self.model.generate_content(email_prompt)
