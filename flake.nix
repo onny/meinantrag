@@ -18,7 +18,7 @@
     overlay = final: prev: {
       meinantrag = with final; python3Packages.buildPythonApplication rec {
         pname = "meinantrag";
-        version = "0.0.2";
+        version = "0.0.3";
         format = "other";
 
         src = self;
