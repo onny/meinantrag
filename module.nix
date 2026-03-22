@@ -20,12 +20,27 @@ in
         type = lib.types.attrsOf lib.types.str;
         default = { };
         example = {
-          GOOGLE_GEMINI_API_KEY = "your-api-key-here";
           MEINANTRAG_BASE_URL = "https://example.com";
+          GOOGLE_GEMINI_API_KEY = "file:/run/secrets/gemini_api_key";
         };
         description = ''
           Additional environment variables to pass to the MeinAntrag service.
-          For example, set GOOGLE_GEMINI_API_KEY for Gemini API integration.
+          Values starting with "file:" will be read from the specified path.
+          For secrets with systemd LoadCredential, use the credentials option instead.
+        '';
+      };
+
+      credentials = lib.mkOption {
+        type = lib.types.attrsOf lib.types.str;
+        default = { };
+        example = {
+          GOOGLE_GEMINI_API_KEY = "/run/secrets/gemini_api_key";
+        };
+        description = ''
+          Credentials to pass to the MeinAntrag service.
+          Maps environment variable names to file paths containing the secret values.
+          These are loaded via systemd's LoadCredential mechanism.
+          The Python app will automatically read the value from the file.
         '';
       };
 
@@ -64,7 +79,8 @@ in
               "PYTHONPATH=${pkgs.meinantrag}/share/meinantrag:${pkgs.meinantrag.pythonPath}"
               "MEINANTRAG_TEMPLATES_DIR=${pkgs.meinantrag}/share/meinantrag/templates"
               "MEINANTRAG_STATIC_DIR=${pkgs.meinantrag}/share/meinantrag/assets"
-            ] ++ (lib.mapAttrsToList (name: value: "${name}=${value}") cfg.settings);
+            ] ++ (lib.mapAttrsToList (name: value: "${name}=${value}") cfg.settings)
+              ++ (lib.mapAttrsToList (name: _: "${name}=file:/run/credentials/uwsgi.service/${name}") cfg.credentials);
 
             settings = {
               "static-map" = "/static=${pkgs.meinantrag}/share/meinantrag/assets";
@@ -73,6 +89,10 @@ in
         };
       };
     };
+
+    # Load credentials via systemd's LoadCredential mechanism
+    systemd.services.uwsgi.serviceConfig.LoadCredential =
+      lib.mapAttrsToList (key: value: "${key}:${value}") cfg.credentials;
 
     # Ensure meinantrag user and group exist
     users.users.meinantrag = {

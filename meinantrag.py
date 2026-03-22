@@ -36,6 +36,22 @@ logger = logging.getLogger(__name__)
 SITE_BASE_URL = os.environ.get("MEINANTRAG_BASE_URL", "http://localhost:8000")
 
 
+def resolve_env_value(value):
+    """
+    Resolve environment variable values that may use file: prefix.
+    If the value starts with 'file:', read the content from the specified path.
+    """
+    if value and value.startswith("file:"):
+        file_path = value[5:]
+        try:
+            with open(file_path, 'r') as f:
+                return f.read().strip()
+        except (IOError, OSError) as e:
+            logger.warning(f"Failed to read credential file {file_path}: {e}")
+            return None
+    return value
+
+
 class BaseTemplateResource:
     """Base class for resources that need template rendering"""
 
@@ -141,8 +157,9 @@ class DatenschutzResource(BaseTemplateResource):
 
 class GenerateAntragResource:
     def __init__(self):
-        # Initialize Gemini API
-        api_key = os.environ.get("GOOGLE_GEMINI_API_KEY")
+        # Initialize Gemini API with file-macro support
+        api_key_raw = os.environ.get("GOOGLE_GEMINI_API_KEY")
+        api_key = resolve_env_value(api_key_raw)
         if api_key:
             genai.configure(api_key=api_key)
             self.model = genai.GenerativeModel("gemini-2.5-pro")
